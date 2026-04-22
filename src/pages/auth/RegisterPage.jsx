@@ -182,7 +182,7 @@
 // export default RegisterPage;
 
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, Link } from 'react-router-dom'
 import { useGoogleLogin } from '@react-oauth/google'
@@ -193,6 +193,11 @@ export default function RegisterPage() {
   const navigate  = useNavigate()
   const isLoading = useSelector(selectIsLoading)
   const error     = useSelector(selectError)
+
+  // clear errors on mount
+  useEffect(() => {
+    dispatch(clearError())
+  }, [dispatch])
 
   const [form, setForm] = useState({
     email:            '',
@@ -255,12 +260,19 @@ export default function RegisterPage() {
   }
 
   const getFieldError = (field) => {
-    if (!error || typeof error === 'string') return null
-    return error[field]?.[0] || null
+    if (!error) return null
+    if (typeof error === 'string') return null
+    
+    const fieldError = error[field]
+    if (Array.isArray(fieldError)) return fieldError[0]
+    if (typeof fieldError === 'string') return fieldError
+    return null
   }
   
   const generalError = getFieldError('non_field_errors') ||
-                       (typeof error === 'string' ? error : null)
+                       getFieldError('detail') ||
+                       getFieldError('message') ||
+                       (typeof error === 'string' ? error : (error?.message || error?.detail || null))
 
 
   return (

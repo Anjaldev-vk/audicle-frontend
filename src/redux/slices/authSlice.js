@@ -41,6 +41,11 @@ export const login = createAsyncThunk(
         email,
         password,
       })
+      
+      if (response.data.mfa_required) {
+        return { mfaRequired: true, mfaToken: response.data.mfa_token }
+      }
+
       const { user, tokens } = response.data
       setInMemoryToken(tokens.access)
       return { user, accessToken: tokens.access }
@@ -60,6 +65,11 @@ export const googleLogin = createAsyncThunk(
       const response = await axiosInstance.post('accounts/login/google/', {
         token: googleToken,
       })
+
+      if (response.data.mfa_required) {
+        return { mfaRequired: true, mfaToken: response.data.mfa_token }
+      }
+
       const { user, tokens } = response.data
       setInMemoryToken(tokens.access)
       return { user, accessToken: tokens.access }
@@ -83,6 +93,26 @@ export const register = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(
         error.response?.data || { message: 'Registration failed' }
+      )
+    }
+  }
+)
+
+// MFA Verification
+export const verifyMFA = createAsyncThunk(
+  'auth/verifyMFA',
+  async ({ mfaToken, totpCode }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post('accounts/mfa/verify/', {
+        mfa_token: mfaToken,
+        totp_code: totpCode,
+      })
+      const { user, access_token } = response.data
+      setInMemoryToken(access_token)
+      return { user, accessToken: access_token }
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || { message: 'MFA verification failed' }
       )
     }
   }
@@ -113,6 +143,8 @@ const authSlice = createSlice({
     isLoading:   true,  // true on first load for session check
     isAuthReady: false, // true after checkSession completes
     error:       null,
+    mfaRequired: false,
+    mfaToken:    null,
   },
   reducers: {
     setAccessToken: (state, action) => {
@@ -122,9 +154,15 @@ const authSlice = createSlice({
       state.user        = null
       state.accessToken = null
       state.error       = null
+      state.mfaRequired = false
+      state.mfaToken    = null
     },
     clearError: (state) => {
       state.error = null
+    },
+    resetMFA: (state) => {
+      state.mfaRequired = false
+      state.mfaToken    = null
     },
   },
   extraReducers: (builder) => {
@@ -152,8 +190,17 @@ const authSlice = createSlice({
       state.error     = null
     })
     builder.addCase(login.fulfilled, (state, action) => {
-      state.user        = action.payload.user
-      state.accessToken = action.payload.accessToken
+      if (action.payload.mfaRequired) {
+        state.mfaRequired = true
+        state.mfaToken    = action.payload.mfaToken
+        state.user        = null
+        state.accessToken = null
+      } else {
+        state.user        = action.payload.user
+        state.accessToken = action.payload.accessToken
+        state.mfaRequired = false
+        state.mfaToken    = null
+      }
       state.isLoading   = false
       state.error       = null
     })
@@ -168,8 +215,17 @@ const authSlice = createSlice({
       state.error     = null
     })
     builder.addCase(googleLogin.fulfilled, (state, action) => {
-      state.user        = action.payload.user
-      state.accessToken = action.payload.accessToken
+      if (action.payload.mfaRequired) {
+        state.mfaRequired = true
+        state.mfaToken    = action.payload.mfaToken
+        state.user        = null
+        state.accessToken = null
+      } else {
+        state.user        = action.payload.user
+        state.accessToken = action.payload.accessToken
+        state.mfaRequired = false
+        state.mfaToken    = null
+      }
       state.isLoading   = false
       state.error       = null
     })
@@ -194,16 +250,36 @@ const authSlice = createSlice({
       state.error     = action.payload
     })
 
+    // ── verifyMFA ─────────────────────────────
+    builder.addCase(verifyMFA.pending, (state) => {
+      state.isLoading = true
+      state.error     = null
+    })
+    builder.addCase(verifyMFA.fulfilled, (state, action) => {
+      state.user        = action.payload.user
+      state.accessToken = action.payload.accessToken
+      state.mfaRequired = false
+      state.mfaToken    = null
+      state.isLoading   = false
+      state.error       = null
+    })
+    builder.addCase(verifyMFA.rejected, (state, action) => {
+      state.isLoading = false
+      state.error     = action.payload
+    })
+
     // ── logout ────────────────────────────────
     builder.addCase(logoutUser.fulfilled, (state) => {
       state.user        = null
       state.accessToken = null
       state.error       = null
+      state.mfaRequired = false
+      state.mfaToken    = null
     })
   },
 })
 
-export const { setAccessToken, logout, clearError } = authSlice.actions
+export const { setAccessToken, logout, clearError, resetMFA } = authSlice.actions
 export default authSlice.reducer
 
 // selectors
@@ -213,3 +289,5 @@ export const selectIsLoading   = (state) => state.auth.isLoading
 export const selectIsAuthReady = (state) => state.auth.isAuthReady
 export const selectError       = (state) => state.auth.error
 export const selectIsLoggedIn  = (state) => !!state.auth.user
+export const selectMfaRequired = (state) => state.auth.mfaRequired
+export const selectMfaToken    = (state) => state.auth.mfaToken

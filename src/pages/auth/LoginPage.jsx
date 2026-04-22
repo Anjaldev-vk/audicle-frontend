@@ -141,17 +141,23 @@
 
 
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, Link } from 'react-router-dom'
 import { useGoogleLogin } from '@react-oauth/google'
-import { login, googleLogin, clearError, selectIsLoading, selectError } from '../../redux/slices/authSlice'
+import { login, googleLogin, clearError, selectIsLoading, selectError, selectMfaRequired } from '../../redux/slices/authSlice'
 
 export default function LoginPage() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const isLoading = useSelector(selectIsLoading)
   const error     = useSelector(selectError)
+  const mfaRequired  = useSelector(selectMfaRequired)
+
+  // clear errors on mount
+  useEffect(() => {
+    dispatch(clearError())
+  }, [dispatch])
 
   const [form, setForm] = useState({ email: '', password: '' })
 
@@ -165,7 +171,11 @@ export default function LoginPage() {
     e.preventDefault()
     const result = await dispatch(login(form))
     if (login.fulfilled.match(result)) {
-      navigate('/dashboard')
+      if (result.payload.mfaRequired) {
+        navigate('/mfa/verify')
+      } else {
+        navigate('/dashboard')
+      }
     }
   }
 
@@ -174,7 +184,11 @@ export default function LoginPage() {
     onSuccess: async (tokenResponse) => {
       const result = await dispatch(googleLogin(tokenResponse.access_token))
       if (googleLogin.fulfilled.match(result)) {
-        navigate('/dashboard')
+        if (result.payload.mfaRequired) {
+          navigate('/mfa/verify')
+        } else {
+          navigate('/dashboard')
+        }
       }
     },
     onError: () => {
@@ -186,12 +200,20 @@ export default function LoginPage() {
   const getFieldError = (field) => {
     if (!error) return null
     if (typeof error === 'string') return null
-    return error[field]?.[0] || null
+    
+    const fieldError = error[field]
+    if (Array.isArray(fieldError)) return fieldError[0]
+    if (typeof fieldError === 'string') return fieldError
+    return null
   }
 
-  const generalError = getFieldError('email') ||
-                       getFieldError('non_field_errors') ||
-                       (typeof error === 'string' ? error : null)
+  const rawError = getFieldError('email') ||
+                   getFieldError('non_field_errors') ||
+                   getFieldError('detail') ||
+                   getFieldError('message') ||
+                   (typeof error === 'string' ? error : (error?.message || error?.detail || null))
+
+  const generalError = rawError === "A validation error occurred." ? "Invalid email or password." : rawError
 
   return (
     <div className="font-[Inter,sans-serif] min-h-screen text-gray-400 flex flex-col items-center justify-center p-6 md:p-10" style={{ background: '#050505' }}>

@@ -5,10 +5,18 @@ import { checkSession, selectIsAuthReady, selectIsLoggedIn } from './redux/slice
 
 import LoginPage        from './pages/auth/LoginPage'
 import RegisterPage     from './pages/auth/RegisterPage'
-import DashboardPage    from './pages/dashboard/DashboardPage'
-import PrivateRoute     from './routes/PrivateRoute'
-import SplashScreen     from './components/SplashScreen'
-import LandingPage      from './pages/landing/LandingPage'
+import ForgotPasswordPage from './pages/auth/ForgotPasswordPage'
+import ResetPasswordPage  from './pages/auth/ResetPasswordPage'
+import MFAVerifyPage      from './pages/auth/MFAVerifyPage'
+import MFASetupPage       from './pages/auth/MFASetupPage'
+import AcceptInvitePage   from './pages/auth/AcceptInvitePage'
+import DashboardPage      from './pages/dashboard/DashboardPage'
+import ProfileSettingsPage from './pages/dashboard/settings/ProfileSettingsPage'
+import OrganisationSettingsPage from './pages/dashboard/organisation/OrganisationSettingsPage'
+import MembersPage        from './pages/dashboard/organisation/MembersPage'
+import PrivateRoute       from './routes/PrivateRoute'
+import SplashScreen       from './components/SplashScreen'
+import LandingPage        from './pages/landing/LandingPage'
 
 export default function App() {
   const dispatch    = useDispatch()
@@ -39,12 +47,61 @@ export default function App() {
         element={isLoggedIn ? <Navigate to='/dashboard' replace /> : <RegisterPage />}
       />
 
+      <Route
+        path='/forgot-password'
+        element={<ForgotPasswordPage />}
+      />
+      <Route
+        path='/password-reset/confirm'
+        element={<ResetPasswordPage />}
+      />
+      <Route
+        path='/mfa/verify'
+        element={<MFAVerifyPage />}
+      />
+      <Route
+        path='/invite/:code'
+        element={<AcceptInvitePage />}
+      />
+
       {/* protected routes */}
       <Route
         path='/dashboard'
         element={
           <PrivateRoute>
             <DashboardPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path='/dashboard/settings'
+        element={
+          <PrivateRoute>
+            <ProfileSettingsPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path='/dashboard/settings/mfa'
+        element={
+          <PrivateRoute>
+            <MFASetupPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path='/dashboard/organisation'
+        element={
+          <PrivateRoute>
+            <OrganisationSettingsPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path='/dashboard/organisation/members'
+        element={
+          <PrivateRoute>
+            <MembersPage />
           </PrivateRoute>
         }
       />
