@@ -11,6 +11,9 @@ import MFAVerifyPage      from './pages/auth/MFAVerifyPage'
 import MFASetupPage       from './pages/auth/MFASetupPage'
 import AcceptInvitePage   from './pages/auth/AcceptInvitePage'
 import DashboardPage      from './pages/dashboard/DashboardPage'
+import MeetingsPage       from './pages/dashboard/meetings/MeetingsPage'
+import CreateMeetingPage  from './pages/dashboard/meetings/CreateMeetingPage'
+import MeetingDetailPage  from './pages/dashboard/meetings/MeetingDetailPage'
 import ProfileSettingsPage from './pages/dashboard/settings/ProfileSettingsPage'
 import OrganisationSettingsPage from './pages/dashboard/organisation/OrganisationSettingsPage'
 import MembersPage        from './pages/dashboard/organisation/MembersPage'
@@ -73,6 +76,33 @@ export default function App() {
           </PrivateRoute>
         }
       />
+      
+      {/* Meeting Routes */}
+      <Route
+        path='/dashboard/meetings'
+        element={
+          <PrivateRoute>
+            <MeetingsPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path='/dashboard/meetings/create'
+        element={
+          <PrivateRoute>
+            <CreateMeetingPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path='/dashboard/meetings/:id'
+        element={
+          <PrivateRoute>
+            <MeetingDetailPage />
+          </PrivateRoute>
+        }
+      />
+
       <Route
         path='/dashboard/settings'
         element={
@@ -105,6 +135,7 @@ export default function App() {
           </PrivateRoute>
         }
       />
+
 
       {/* landing page */}
       <Route

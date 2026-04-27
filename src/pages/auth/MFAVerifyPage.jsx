@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, Navigate } from 'react-router-dom'
 import { verifyMFA, selectIsLoading, selectError, selectMfaRequired, selectMfaToken, resetMFA } from '../../redux/slices/authSlice'

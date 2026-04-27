@@ -11,8 +11,11 @@ export const setupInterceptors = (store) => {
   // ─────────────────────────────────────────────
   axiosInstance.interceptors.request.use(
     (config) => {
+      // Do not attach Authorization header for login/register endpoints to avoid 401s during fresh login
+      const isAuthPath = config.url.includes('accounts/login/') || config.url.includes('accounts/register/')
+      
       const token = store.getState().auth.accessToken
-      if (token) {
+      if (token && !isAuthPath) {
         config.headers.Authorization = `Bearer ${token}`
       }
       return config
@@ -77,7 +80,7 @@ export const setupInterceptors = (store) => {
             { withCredentials: true }
           )
 
-          const newAccessToken = response.data.access
+          const newAccessToken = response.data.data.access
           setInMemoryToken(newAccessToken)
 
           // Update Redux - use literal type to avoid importing authSlice

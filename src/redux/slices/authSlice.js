@@ -20,12 +20,12 @@ export const checkSession = createAsyncThunk(
         {},
         { withCredentials: true }
       )
-      const accessToken = refreshRes.data.access
+      const accessToken = refreshRes.data.data.access
       setInMemoryToken(accessToken)
-
+      
       // get user profile
       const meRes = await axiosInstance.get('accounts/me/')
-      return { user: meRes.data, accessToken }
+      return { user: meRes.data.data, accessToken }
     } catch {
       return rejectWithValue(null)
     }
@@ -42,11 +42,11 @@ export const login = createAsyncThunk(
         password,
       })
       
-      if (response.data.mfa_required) {
-        return { mfaRequired: true, mfaToken: response.data.mfa_token }
+      if (response.data.data.mfa_required) {
+        return { mfaRequired: true, mfaToken: response.data.data.mfa_token }
       }
 
-      const { user, tokens } = response.data
+      const { user, tokens } = response.data.data
       setInMemoryToken(tokens.access)
       return { user, accessToken: tokens.access }
     } catch (error) {
@@ -66,11 +66,11 @@ export const googleLogin = createAsyncThunk(
         token: googleToken,
       })
 
-      if (response.data.mfa_required) {
-        return { mfaRequired: true, mfaToken: response.data.mfa_token }
+      if (response.data.data.mfa_required) {
+        return { mfaRequired: true, mfaToken: response.data.data.mfa_token }
       }
 
-      const { user, tokens } = response.data
+      const { user, tokens } = response.data.data
       setInMemoryToken(tokens.access)
       return { user, accessToken: tokens.access }
     } catch (error) {
@@ -87,7 +87,7 @@ export const register = createAsyncThunk(
   async (payload, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post('accounts/register/', payload)
-      const { user, tokens } = response.data
+      const { user, tokens } = response.data.data
       setInMemoryToken(tokens.access)
       return { user, accessToken: tokens.access }
     } catch (error) {
@@ -107,7 +107,7 @@ export const verifyMFA = createAsyncThunk(
         mfa_token: mfaToken,
         totp_code: totpCode,
       })
-      const { user, access_token } = response.data
+      const { user, access_token } = response.data.data
       setInMemoryToken(access_token)
       return { user, accessToken: access_token }
     } catch (error) {
