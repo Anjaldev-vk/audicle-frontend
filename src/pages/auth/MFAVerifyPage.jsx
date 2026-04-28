@@ -1,7 +1,17 @@
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, Navigate } from 'react-router-dom'
-import { verifyMFA, selectIsLoading, selectError, selectMfaRequired, selectMfaToken, resetMFA } from '../../redux/slices/authSlice'
+import { 
+  verifyMFA, 
+  requestMFARecovery, 
+  verifyMFARecovery,
+  selectIsLoading, 
+  selectError, 
+  selectMfaRequired, 
+  selectMfaToken, 
+  resetMFA 
+} from '../../redux/slices/authSlice'
+import { toast } from 'react-hot-toast'
 
 export default function MFAVerifyPage() {
   const dispatch = useDispatch()
@@ -12,7 +22,9 @@ export default function MFAVerifyPage() {
   const mfaRequired  = useSelector(selectMfaRequired)
   const mfaToken     = useSelector(selectMfaToken)
 
+  const [mode, setMode] = useState('totp') // 'totp' or 'recovery'
   const [code, setCode] = useState('')
+  const [recoveryRequested, setRecoveryRequested] = useState(false)
 
   // if user refreshes or accesses this page directly without mfaRequired
   if (!mfaRequired || !mfaToken) {
@@ -23,9 +35,28 @@ export default function MFAVerifyPage() {
     e.preventDefault()
     if (code.length !== 6) return
 
-    const result = await dispatch(verifyMFA({ mfaToken, totpCode: code }))
-    if (verifyMFA.fulfilled.match(result)) {
-      navigate('/dashboard')
+    if (mode === 'totp') {
+      const result = await dispatch(verifyMFA({ mfaToken, totpCode: code }))
+      if (verifyMFA.fulfilled.match(result)) {
+        toast.success('Login successful!')
+        navigate('/dashboard')
+      }
+    } else {
+      const result = await dispatch(verifyMFARecovery({ mfaToken, emailCode: code }))
+      if (verifyMFARecovery.fulfilled.match(result)) {
+        toast.success('MFA disabled and login successful!')
+        navigate('/dashboard')
+      }
+    }
+  }
+
+  const handleRequestRecovery = async () => {
+    const result = await dispatch(requestMFARecovery({ mfaToken }))
+    if (requestMFARecovery.fulfilled.match(result)) {
+      setRecoveryRequested(true)
+      setMode('recovery')
+      setCode('')
+      toast.success('Recovery code sent to your email.')
     }
   }
 
@@ -41,15 +72,20 @@ export default function MFAVerifyPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight mb-3">Two-Step Verification</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight mb-3">
+            {mode === 'totp' ? 'Two-Step Verification' : 'MFA Recovery'}
+          </h2>
           <p className="text-gray-500 text-sm leading-relaxed">
-            Enter the 6-digit code from your authenticator app to secure your account.
+            {mode === 'totp' 
+              ? 'Enter the 6-digit code from your authenticator app to secure your account.'
+              : 'Enter the 6-digit emergency code sent to your registered email address.'
+            }
           </p>
         </div>
 
         {error && (
           <div className="bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg px-4 py-3 mb-6 text-sm text-center">
-            {typeof error === 'string' ? error : (error.message || error.detail || error.totp_code || error.mfa_token || 'Verification failed')}
+            {typeof error === 'string' ? error : (error.message || error.detail || error.totp_code || error.email_code || 'Verification failed')}
           </div>
         )}
 
@@ -89,9 +125,15 @@ export default function MFAVerifyPage() {
         </form>
 
         <div className="mt-10 pt-8 border-t border-white/5 text-center px-4">
-          <p className="text-xs text-gray-600 leading-relaxed">
-            Lost access to your device? <button className="text-blue-500 hover:underline">Use a recovery code</button>
-          </p>
+          {mode === 'totp' ? (
+            <p className="text-xs text-gray-600 leading-relaxed">
+              Lost access to your device? <button onClick={handleRequestRecovery} className="text-blue-500 hover:underline font-medium">Send recovery code to email</button>
+            </p>
+          ) : (
+            <p className="text-xs text-gray-600 leading-relaxed">
+              Found your device? <button onClick={() => { setMode('totp'); setCode(''); }} className="text-blue-500 hover:underline font-medium">Use authenticator app</button>
+            </p>
+          )}
         </div>
       </div>
     </div>

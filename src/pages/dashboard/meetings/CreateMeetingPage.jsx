@@ -10,7 +10,8 @@ import {
   CheckCircle2,
   AlertCircle,
   Link2,
-  CloudUpload
+  CloudUpload,
+  Clock
 } from 'lucide-react';
 import DashboardLayout from '../../../components/layout/DashboardLayout';
 import API from '../../../api/axiosInstance';
@@ -26,7 +27,8 @@ const CreateMeetingPage = () => {
     title: '',
     description: '',
     platform: 'upload',
-    meeting_url: ''
+    meeting_url: '',
+    scheduled_at: new Date().toISOString().slice(0, 16) // Default to now
   });
 
   const handleInputChange = (e) => {
@@ -88,9 +90,23 @@ const CreateMeetingPage = () => {
 
         toast.success('Meeting uploaded and processing!', { id: toastId });
       } else if (activeTab === 'bot') {
-        // Dispatch bot if URL provided (future Phase 9)
-        // For now just create the meeting
-        toast.success('Meeting scheduled!', { id: toastId });
+        // Smart Dispatch (Phase 9)
+        // Only dispatch immediately if scheduled for 'now' (within next 5 mins)
+        const scheduledTime = new Date(formData.scheduled_at);
+        const isNow = (scheduledTime - new Date()) < 5 * 60 * 1000;
+
+        if (isNow) {
+          toast.loading('Dispatching bot assistant...', { id: toastId });
+          try {
+            await API.post(`meetings/${meetingId}/bot/dispatch/`);
+            toast.success('Bot assistant dispatched!', { id: toastId });
+          } catch (botError) {
+            console.error('Bot dispatch failed', botError);
+            toast.error('Meeting scheduled, but immediate join failed.', { id: toastId });
+          }
+        } else {
+          toast.success('Meeting scheduled! Bot will join at the set time.', { id: toastId });
+        }
       }
 
       navigate(`/dashboard/meetings/${meetingId}`);
@@ -250,6 +266,51 @@ const CreateMeetingPage = () => {
                 </div>
                 <p className="text-[10px] text-gray-600 mt-2 px-1">
                   Our bot will automatically join the meeting at the scheduled time to record and transcribe.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                  <Calendar className="w-3 h-3" /> Scheduled Time
+                </label>
+                
+                {/* Quick Select Buttons */}
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {[
+                    { label: 'In 15 Mins', value: 15 },
+                    { label: 'In 1 Hour', value: 60 },
+                    { label: 'Tomorrow', value: 1440 },
+                  ].map((opt) => (
+                    <button
+                      key={opt.label}
+                      type="button"
+                      onClick={() => {
+                        const date = new Date();
+                        date.setMinutes(date.getMinutes() + opt.value);
+                        setFormData(prev => ({ ...prev, scheduled_at: date.toISOString().slice(0, 16) }));
+                      }}
+                      className="px-3 py-1.5 bg-white/5 hover:bg-blue-600/10 border border-brand-border hover:border-blue-500/30 rounded-lg text-[10px] font-bold text-gray-400 hover:text-blue-400 transition-all uppercase tracking-tight"
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="relative group">
+                  <input
+                    type="datetime-local"
+                    name="scheduled_at"
+                    value={formData.scheduled_at}
+                    onChange={handleInputChange}
+                    className="w-full bg-brand-bg border border-brand-border group-hover:border-blue-500/30 focus:border-blue-500/50 rounded-xl px-4 py-4 text-white transition-all outline-none"
+                  />
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-600 group-hover:text-blue-500 transition-colors">
+                    <Clock className="w-5 h-5" />
+                  </div>
+                </div>
+                
+                <p className="text-[10px] text-indigo-500/60 mt-2 px-1 font-medium italic">
+                  Note: Bot will auto-join ±5 minutes from this time.
                 </p>
               </div>
             </div>

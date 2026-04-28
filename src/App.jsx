@@ -17,6 +17,7 @@ import MeetingDetailPage  from './pages/dashboard/meetings/MeetingDetailPage'
 import ProfileSettingsPage from './pages/dashboard/settings/ProfileSettingsPage'
 import OrganisationSettingsPage from './pages/dashboard/organisation/OrganisationSettingsPage'
 import MembersPage        from './pages/dashboard/organisation/MembersPage'
+import ChatPage           from './pages/dashboard/rag/ChatPage'
 import PrivateRoute       from './routes/PrivateRoute'
 import SplashScreen       from './components/SplashScreen'
 import LandingPage        from './pages/landing/LandingPage'
@@ -132,6 +133,14 @@ export default function App() {
         element={
           <PrivateRoute>
             <MembersPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path='/dashboard/chat'
+        element={
+          <PrivateRoute>
+            <ChatPage />
           </PrivateRoute>
         }
       />

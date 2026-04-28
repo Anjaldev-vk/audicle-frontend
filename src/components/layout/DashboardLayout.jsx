@@ -11,7 +11,8 @@ import {
   X,
   Bell,
   Search,
-  Plus
+  Plus,
+  Sparkles
 } from 'lucide-react';
 import { logout } from '../../redux/slices/authSlice';
 import { setInMemoryToken } from '../../api/axiosInstance';
@@ -37,11 +38,21 @@ const DashboardLayout = ({ children }) => {
   const navItems = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
     { name: 'Meetings', icon: Video, path: '/dashboard/meetings' },
+    { name: 'AI Chat', icon: Sparkles, path: '/dashboard/chat' },
     { name: 'Organisation', icon: Users, path: '/dashboard/organisation' },
     { name: 'Settings', icon: Settings, path: '/dashboard/settings' },
   ];
 
   const isActive = (path) => location.pathname === path;
+
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearch = (e) => {
+    if (e.key === 'Enter' && searchQuery.trim()) {
+      navigate(`/dashboard/chat?q=${encodeURIComponent(searchQuery)}`);
+      setSearchQuery('');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-brand-bg text-gray-400 font-inter flex">
@@ -112,8 +123,11 @@ const DashboardLayout = ({ children }) => {
               <Search className="w-4 h-4 text-gray-500" />
               <input 
                 type="text" 
-                placeholder="Search meetings..." 
-                className="bg-transparent border-none focus:ring-0 text-sm w-full px-2 text-white placeholder:text-gray-600"
+                placeholder="Deep search meeting intelligence..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleSearch}
+                className="bg-transparent border-none focus:ring-0 text-sm w-full px-2 text-white placeholder:text-gray-600 outline-none"
               />
             </div>
           </div>

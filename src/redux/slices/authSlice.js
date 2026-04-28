@@ -118,6 +118,43 @@ export const verifyMFA = createAsyncThunk(
   }
 )
 
+// MFA Recovery - Step 1: Request OTP
+export const requestMFARecovery = createAsyncThunk(
+  'auth/requestMFARecovery',
+  async ({ mfaToken }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post('accounts/mfa/recover/request/', {
+        mfa_token: mfaToken,
+      })
+      return response.data
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || { message: 'Failed to request recovery code' }
+      )
+    }
+  }
+)
+
+// MFA Recovery - Step 2: Verify OTP
+export const verifyMFARecovery = createAsyncThunk(
+  'auth/verifyMFARecovery',
+  async ({ mfaToken, emailCode }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post('accounts/mfa/recover/verify/', {
+        mfa_token: mfaToken,
+        email_code: emailCode,
+      })
+      const { user, access_token } = response.data.data
+      setInMemoryToken(access_token)
+      return { user, accessToken: access_token }
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || { message: 'Recovery verification failed' }
+      )
+    }
+  }
+)
+
 // logout
 export const logoutUser = createAsyncThunk(
   'auth/logout',
@@ -264,6 +301,37 @@ const authSlice = createSlice({
       state.error       = null
     })
     builder.addCase(verifyMFA.rejected, (state, action) => {
+      state.isLoading = false
+      state.error     = action.payload
+    })
+
+    // ── requestMFARecovery ─────────────────────
+    builder.addCase(requestMFARecovery.pending, (state) => {
+      state.isLoading = true
+      state.error     = null
+    })
+    builder.addCase(requestMFARecovery.fulfilled, (state) => {
+      state.isLoading = false
+    })
+    builder.addCase(requestMFARecovery.rejected, (state, action) => {
+      state.isLoading = false
+      state.error     = action.payload
+    })
+
+    // ── verifyMFARecovery ─────────────────────
+    builder.addCase(verifyMFARecovery.pending, (state) => {
+      state.isLoading = true
+      state.error     = null
+    })
+    builder.addCase(verifyMFARecovery.fulfilled, (state, action) => {
+      state.user        = action.payload.user
+      state.accessToken = action.payload.accessToken
+      state.mfaRequired = false
+      state.mfaToken    = null
+      state.isLoading   = false
+      state.error       = null
+    })
+    builder.addCase(verifyMFARecovery.rejected, (state, action) => {
       state.isLoading = false
       state.error     = action.payload
     })

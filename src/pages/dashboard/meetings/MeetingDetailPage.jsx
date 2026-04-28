@@ -17,7 +17,8 @@ import {
   Loader2,
   AlertCircle,
   Volume2,
-  Calendar
+  Calendar,
+  Bot
 } from 'lucide-react';
 import DashboardLayout from '../../../components/layout/DashboardLayout';
 import API from '../../../api/axiosInstance';
@@ -54,20 +55,28 @@ const MeetingDetailPage = () => {
         setSummary(summaryRes.data.data);
 
         // If meeting has audio, get download URL
-        if (meetingRes.data.data.audio_s3_key) {
+        if (meetingRes.data.data.audio_s3_key && !audioUrl) {
           const audioRes = await API.get(`meetings/${id}/upload/download-url/`);
           setAudioUrl(audioRes.data.data.url);
         }
       } catch (_err) {
         console.error(_err);
-        toast.error('Failed to load meeting details');
+        if (!meeting) toast.error('Failed to load meeting details');
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [id]);
+
+    // Poll if meeting is in progress
+    let interval;
+    if (meeting && ['scheduled', 'bot_joining', 'recording', 'processing'].includes(meeting.status)) {
+      interval = setInterval(fetchData, 10000); // 10 seconds
+    }
+
+    return () => clearInterval(interval);
+  }, [id, meeting?.status]);
 
   const handleTranslate = async (lang) => {
     setTranslating(true);
@@ -144,6 +153,12 @@ const MeetingDetailPage = () => {
         </div>
 
         <div className="flex items-center gap-3">
+          <button 
+            onClick={() => navigate('/dashboard/chat')}
+            className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600/10 border border-indigo-500/20 rounded-xl text-xs font-bold text-indigo-400 hover:bg-indigo-600 hover:text-white transition-all"
+          >
+            <MessageSquare className="w-4 h-4" /> Ask AI
+          </button>
           <button className="flex items-center gap-2 px-4 py-2.5 bg-brand-surface border border-brand-border rounded-xl text-xs font-bold text-gray-400 hover:text-white transition-all">
             <Share2 className="w-4 h-4" /> Share
           </button>
@@ -262,13 +277,40 @@ const MeetingDetailPage = () => {
                 </div>
               ) : (
                 <div className="bg-brand-surface border border-brand-border rounded-3xl p-12 text-center">
-                  {meeting.status === 'processing' ? (
+                  {meeting.status === 'processing' || meeting.status === 'bot_joining' || meeting.status === 'recording' ? (
                     <>
-                      <Loader2 className="w-12 h-12 text-blue-500 animate-spin mx-auto mb-6" />
-                      <h3 className="text-xl font-bold text-white mb-2">Generating Intelligence...</h3>
-                      <p className="text-gray-500 max-w-sm mx-auto">
-                        Our AI is currently transcribing and summarising your meeting. This usually takes 1-2 minutes.
-                      </p>
+                      {meeting.status === 'bot_joining' ? (
+                        <>
+                          <div className="relative w-16 h-16 mx-auto mb-6">
+                            <div className="absolute inset-0 bg-blue-500/20 rounded-full animate-ping"></div>
+                            <div className="relative w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-600/20">
+                              <Bot className="w-8 h-8 text-white" />
+                            </div>
+                          </div>
+                          <h3 className="text-xl font-bold text-white mb-2">Bot Joining...</h3>
+                          <p className="text-gray-500 max-w-sm mx-auto">
+                            The assistant is currently entering the meeting room. Please ensure the bot is admitted if there is a waiting room.
+                          </p>
+                        </>
+                      ) : meeting.status === 'recording' ? (
+                        <>
+                          <div className="w-16 h-16 bg-red-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-red-500/20 shadow-[0_0_20px_rgba(239,68,68,0.2)]">
+                            <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                          </div>
+                          <h3 className="text-xl font-bold text-white mb-2">Live Recording</h3>
+                          <p className="text-gray-500 max-w-sm mx-auto">
+                            The meeting is currently being recorded. You will see the summary here once the meeting ends.
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <Loader2 className="w-12 h-12 text-blue-500 animate-spin mx-auto mb-6" />
+                          <h3 className="text-xl font-bold text-white mb-2">Generating Intelligence...</h3>
+                          <p className="text-gray-500 max-w-sm mx-auto">
+                            Our AI is currently transcribing and summarising your meeting. This usually takes 1-2 minutes.
+                          </p>
+                        </>
+                      )}
                     </>
                   ) : meeting.status === 'failed' ? (
                     <>

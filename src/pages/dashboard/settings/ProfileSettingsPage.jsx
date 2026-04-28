@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectUser, checkSession } from '../../../redux/slices/authSlice'
+import { selectUser, checkSession, logout } from '../../../redux/slices/authSlice'
+import { useNavigate, Link } from 'react-router-dom'
 import axiosInstance from '../../../api/axiosInstance'
 import { toast } from 'react-hot-toast'
 import DashboardLayout from '../../../components/layout/DashboardLayout'
+import ChangePasswordModal from '../../../components/auth/ChangePasswordModal'
 
 export default function ProfileSettingsPage() {
   const user = useSelector(selectUser)
   const dispatch = useDispatch()
+  const navigate = useNavigate()
   
   const [form, setForm] = useState({
     first_name: '',
@@ -19,6 +22,7 @@ export default function ProfileSettingsPage() {
     meeting_reminders: true
   })
   const [isLoading, setIsLoading] = useState(false)
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false)
 
   useEffect(() => {
     if (user) {
@@ -196,6 +200,46 @@ export default function ProfileSettingsPage() {
                 </div>
               </div>
 
+              <div className="bg-brand-surface border border-brand-border rounded-3xl p-8 md:p-10">
+                <h4 className="text-white font-bold text-sm mb-6 uppercase tracking-widest">Security</h4>
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-white text-sm font-medium">Two-Factor Authentication (MFA)</p>
+                      <p className="text-gray-500 text-xs">
+                        {user?.mfa_enabled 
+                          ? 'MFA is currently enabled. Your account is extra secure.' 
+                          : 'MFA is currently disabled. We recommend enabling it for better security.'}
+                      </p>
+                    </div>
+                    <Link 
+                      to="/dashboard/settings/mfa"
+                      className={`px-4 py-2 rounded-xl text-[0.65rem] font-bold tracking-widest transition-all border ${
+                        user?.mfa_enabled 
+                          ? 'border-red-500/20 text-red-400 hover:bg-red-500/10' 
+                          : 'border-blue-500/20 text-blue-400 hover:bg-blue-500/10'
+                      }`}
+                    >
+                      {user?.mfa_enabled ? 'MANAGE MFA' : 'ENABLE MFA'}
+                    </Link>
+                  </div>
+
+                  <div className="pt-4 border-t border-white/5 flex items-center justify-between">
+                    <div>
+                      <p className="text-white text-sm font-medium">Password</p>
+                      <p className="text-gray-500 text-xs">Last changed: {user?.password_last_changed ? new Date(user.password_last_changed).toLocaleDateString() : 'Never'}</p>
+                    </div>
+                    <button 
+                      type="button"
+                      onClick={() => setIsPasswordModalOpen(true)}
+                      className="px-4 py-2 border border-white/10 text-white rounded-xl text-[0.65rem] font-bold tracking-widest hover:bg-white/5 transition-all"
+                    >
+                      CHANGE PASSWORD
+                    </button>
+                  </div>
+                </div>
+              </div>
+
               <div className="flex justify-end">
                 <button
                   type="submit"
@@ -208,6 +252,11 @@ export default function ProfileSettingsPage() {
             </form>
           </div>
         </div>
+
+        <ChangePasswordModal 
+          isOpen={isPasswordModalOpen} 
+          onClose={() => setIsPasswordModalOpen(false)} 
+        />
       </div>
     </DashboardLayout>
   )

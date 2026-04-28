@@ -184,15 +184,36 @@
 
 import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useLocation } from 'react-router-dom'
 import { useGoogleLogin } from '@react-oauth/google'
 import { register, googleLogin, clearError, selectIsLoading, selectError } from '../../redux/slices/authSlice'
 
 export default function RegisterPage() {
   const dispatch  = useDispatch()
   const navigate  = useNavigate()
+  const location  = useLocation()
   const isLoading = useSelector(selectIsLoading)
   const error     = useSelector(selectError)
+
+  // extract invite info from URL
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    const email  = params.get('email')
+    const code   = params.get('code')
+    const type   = params.get('type')
+
+    if (email) {
+      setForm(prev => ({ ...prev, email }))
+    }
+    if (type === 'join_org' && code) {
+      setForm(prev => ({ ...prev, account_type: 'join_org', invite_code: code }))
+    }
+  }, [location])
+
+  // clear errors on mount
+  useEffect(() => {
+    dispatch(clearError())
+  }, [dispatch])
 
   // clear errors on mount
   useEffect(() => {
@@ -208,6 +229,7 @@ export default function RegisterPage() {
     account_type:     'individual',
     org_name:         '',
     org_slug:         '',
+    invite_code:      '',
   })
 
   // We should also have Google Auth for registration
@@ -251,6 +273,10 @@ export default function RegisterPage() {
     if (form.account_type === 'create_org') {
       payload.org_name = form.org_name
       payload.org_slug = form.org_slug
+    }
+
+    if (form.invite_code) {
+      payload.invite_code = form.invite_code
     }
 
     const result = await dispatch(register(payload))
