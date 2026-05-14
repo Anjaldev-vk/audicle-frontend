@@ -36,10 +36,10 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="w-full max-w-md bg-[#0a0a0a] border border-white/5 rounded-3xl p-8 md:p-10 shadow-2xl animate-in zoom-in-95 duration-300">
+      <div className="w-full max-w-md bg-brand-surface border border-brand-border rounded-3xl p-8 md:p-10 shadow-2xl animate-in zoom-in-95 duration-300">
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-bold text-white">Change Password</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors">
+          <h2 className="text-2xl font-bold text-text-main">Change Password</h2>
+          <button onClick={onClose} className="text-text-muted hover:text-text-main transition-colors">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -48,33 +48,33 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-[0.68rem] font-bold tracking-[0.12em] uppercase text-gray-500 mb-2 ml-1">Current Password</label>
+            <label className="block text-[0.68rem] font-bold tracking-[0.12em] uppercase text-text-muted mb-2 ml-1">Current Password</label>
             <input
               type="password"
               required
-              className="w-full px-4 py-3 bg-[#111] border border-white/5 rounded-xl text-white placeholder-gray-600 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all text-sm"
+              className="w-full px-4 py-3 bg-brand-bg border border-brand-border rounded-xl text-text-main placeholder:text-text-muted/50 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all text-sm"
               value={form.old_password}
               onChange={(e) => setForm({ ...form, old_password: e.target.value })}
             />
           </div>
 
           <div>
-            <label className="block text-[0.68rem] font-bold tracking-[0.12em] uppercase text-gray-500 mb-2 ml-1">New Password</label>
+            <label className="block text-[0.68rem] font-bold tracking-[0.12em] uppercase text-text-muted mb-2 ml-1">New Password</label>
             <input
               type="password"
               required
-              className="w-full px-4 py-3 bg-[#111] border border-white/5 rounded-xl text-white placeholder-gray-600 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all text-sm"
+              className="w-full px-4 py-3 bg-brand-bg border border-brand-border rounded-xl text-text-main placeholder:text-text-muted/50 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all text-sm"
               value={form.new_password}
               onChange={(e) => setForm({ ...form, new_password: e.target.value })}
             />
           </div>
 
           <div>
-            <label className="block text-[0.68rem] font-bold tracking-[0.12em] uppercase text-gray-500 mb-2 ml-1">Confirm New Password</label>
+            <label className="block text-[0.68rem] font-bold tracking-[0.12em] uppercase text-text-muted mb-2 ml-1">Confirm New Password</label>
             <input
               type="password"
               required
-              className="w-full px-4 py-3 bg-[#111] border border-white/5 rounded-xl text-white placeholder-gray-600 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all text-sm"
+              className="w-full px-4 py-3 bg-brand-bg border border-brand-border rounded-xl text-text-main placeholder:text-text-muted/50 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all text-sm"
               value={form.confirm_password}
               onChange={(e) => setForm({ ...form, confirm_password: e.target.value })}
             />

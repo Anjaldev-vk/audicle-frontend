@@ -1,6 +1,6 @@
 import React from 'react';
 
-const StatusBadge = ({ status, variant = 'default' }) => {
+const StatusBadge = ({ status }) => {
   const getStyles = () => {
     switch (status?.toLowerCase()) {
       case 'completed':

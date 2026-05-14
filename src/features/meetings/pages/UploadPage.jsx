@@ -16,7 +16,7 @@ import {
   useCreateMeetingMutation, 
   useDispatchBotMutation, 
   useRequestUploadUrlMutation, 
-  useConfirmUploadMutation 
+  useConfirmUploadMutation
 } from '../api/meetingsApi';
 import toast from 'react-hot-toast';
 import axios from 'axios';
@@ -99,7 +99,8 @@ const UploadPage = () => {
           try {
             await dispatchBot(meetingId).unwrap();
             toast.success('Bot assistant dispatched!', { id: toastId });
-          } catch (botError) {
+          } catch (err) {
+            console.error(err);
             toast.error('Meeting scheduled, but immediate join failed.', { id: toastId });
           }
         } else {
@@ -119,15 +120,15 @@ const UploadPage = () => {
     <AppLayout>
       <button 
         onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-gray-500 hover:text-white transition-colors mb-6 group"
+        className="flex items-center gap-2 text-text-muted hover:text-text-main transition-colors mb-6 group"
       >
         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
         <span className="text-[10px] font-bold uppercase tracking-widest">Back to Meetings</span>
       </button>
 
       <div className="max-w-3xl animate-in fade-in slide-in-from-bottom-4 duration-700">
-        <h1 className="text-3xl font-bold text-white mb-2">Create New Meeting</h1>
-        <p className="text-gray-500 mb-10">Choose how you want to ingest your meeting audio.</p>
+        <h1 className="text-3xl font-bold text-text-main mb-2">Create New Meeting</h1>
+        <p className="text-text-muted mb-10">Choose how you want to ingest your meeting audio.</p>
 
         {/* Tabs */}
         <div className="flex gap-2 p-1 bg-brand-surface border border-brand-border rounded-2xl mb-10 w-fit">
@@ -135,7 +136,7 @@ const UploadPage = () => {
             onClick={() => setActiveTab('upload')}
             className={`
               flex items-center gap-2 px-6 py-2.5 rounded-xl text-[11px] font-bold uppercase tracking-widest transition-all
-              ${activeTab === 'upload' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-gray-500 hover:text-white'}
+              ${activeTab === 'upload' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-text-muted hover:text-text-main'}
             `}
           >
             <CloudUpload className="w-4 h-4" />
@@ -145,7 +146,7 @@ const UploadPage = () => {
             onClick={() => setActiveTab('bot')}
             className={`
               flex items-center gap-2 px-6 py-2.5 rounded-xl text-[11px] font-bold uppercase tracking-widest transition-all
-              ${activeTab === 'bot' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-gray-500 hover:text-white'}
+              ${activeTab === 'bot' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-text-muted hover:text-text-main'}
             `}
           >
             <Bot className="w-4 h-4" />
@@ -156,7 +157,7 @@ const UploadPage = () => {
         <form onSubmit={handleSubmit} className="space-y-8">
           <div className="bg-brand-surface border border-brand-border rounded-3xl p-8 space-y-6">
             <div>
-              <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">Meeting Title</label>
+              <label className="block text-[10px] font-bold text-text-muted uppercase tracking-widest mb-2 ml-1">Meeting Title</label>
               <input
                 type="text"
                 name="title"
@@ -164,18 +165,18 @@ const UploadPage = () => {
                 placeholder="e.g. Q4 Engineering Sync"
                 value={formData.title}
                 onChange={handleInputChange}
-                className="w-full bg-brand-bg border border-brand-border focus:border-blue-500/50 rounded-xl px-4 py-3 text-white transition-all outline-none"
+                className="w-full bg-brand-bg border border-brand-border focus:border-blue-500/50 rounded-xl px-4 py-3 text-text-main transition-all outline-none"
               />
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">Description (Optional)</label>
+              <label className="block text-[10px] font-bold text-text-muted uppercase tracking-widest mb-2 ml-1">Description (Optional)</label>
               <textarea
                 name="description"
                 rows="3"
                 placeholder="What is this meeting about?"
                 value={formData.description}
                 onChange={handleInputChange}
-                className="w-full bg-brand-bg border border-brand-border focus:border-blue-500/50 rounded-xl px-4 py-3 text-white transition-all outline-none resize-none"
+                className="w-full bg-brand-bg border border-brand-border focus:border-blue-500/50 rounded-xl px-4 py-3 text-text-main transition-all outline-none resize-none"
               />
             </div>
           </div>
@@ -202,8 +203,8 @@ const UploadPage = () => {
                   </div>
                   {file ? (
                     <div className="text-center">
-                      <p className="text-white font-bold">{file.name}</p>
-                      <p className="text-xs text-gray-500">{(file.size / (1024 * 1024)).toFixed(2)} MB</p>
+                      <p className="text-text-main font-bold">{file.name}</p>
+                      <p className="text-xs text-text-muted">{(file.size / (1024 * 1024)).toFixed(2)} MB</p>
                       <button 
                         type="button" 
                         onClick={(e) => { e.preventDefault(); setFile(null); }}
@@ -214,8 +215,8 @@ const UploadPage = () => {
                     </div>
                   ) : (
                     <div className="text-center">
-                      <p className="text-white font-bold">Click to upload or drag and drop</p>
-                      <p className="text-xs text-gray-500 mt-1 uppercase tracking-widest">Maximum file size: 100MB</p>
+                      <p className="text-text-main font-bold">Click to upload or drag and drop</p>
+                      <p className="text-xs text-text-muted mt-1 uppercase tracking-widest">Maximum file size: 100MB</p>
                     </div>
                   )}
                 </label>
@@ -230,7 +231,7 @@ const UploadPage = () => {
                     name="platform"
                     value={formData.platform}
                     onChange={handleInputChange}
-                    className="w-full bg-brand-bg border border-brand-border focus:border-blue-500/50 rounded-xl px-4 py-3 text-white transition-all outline-none appearance-none"
+                    className="w-full bg-brand-bg border border-brand-border focus:border-blue-500/50 rounded-xl px-4 py-3 text-black transition-all outline-none appearance-none"
                   >
                     <option value="google_meet">Google Meet</option>
                     <option value="zoom">Zoom</option>
@@ -238,26 +239,26 @@ const UploadPage = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">Bot Name</label>
+                  <label className="block text-[10px] font-bold text-text-muted uppercase tracking-widest mb-2 ml-1">Bot Name</label>
                   <input
                     type="text"
                     disabled
                     placeholder="Audicle Assistant"
-                    className="w-full bg-brand-bg/50 border border-brand-border rounded-xl px-4 py-3 text-gray-600 cursor-not-allowed outline-none"
+                    className="w-full bg-brand-bg/50 border border-brand-border rounded-xl px-4 py-3 text-text-muted cursor-not-allowed outline-none"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">Meeting Link</label>
+                <label className="block text-[10px] font-bold text-text-muted uppercase tracking-widest mb-2 ml-1">Meeting Link</label>
                 <div className="relative">
-                  <Link2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
+                  <Link2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                   <input
                     type="url"
                     name="meeting_url"
                     placeholder="https://meet.google.com/..."
                     value={formData.meeting_url}
                     onChange={handleInputChange}
-                    className="w-full bg-brand-bg border border-brand-border focus:border-blue-500/50 rounded-xl pl-12 pr-4 py-3 text-white transition-all outline-none"
+                    className="w-full bg-brand-bg border border-brand-border focus:border-blue-500/50 rounded-xl pl-12 pr-4 py-3 text-text-main transition-all outline-none"
                   />
                 </div>
               </div>
@@ -272,9 +273,9 @@ const UploadPage = () => {
                     name="scheduled_at"
                     value={formData.scheduled_at}
                     onChange={handleInputChange}
-                    className="w-full bg-brand-bg border border-brand-border group-hover:border-blue-500/30 focus:border-blue-500/50 rounded-xl px-4 py-4 text-white transition-all outline-none"
+                    className="w-full bg-brand-bg border border-brand-border group-hover:border-blue-500/30 focus:border-blue-500/50 rounded-xl px-4 py-4 text-text-main transition-all outline-none"
                   />
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-600 group-hover:text-blue-500 transition-colors">
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-text-muted group-hover:text-blue-500 transition-colors">
                     <Clock className="w-5 h-5" />
                   </div>
                 </div>
@@ -286,7 +287,7 @@ const UploadPage = () => {
             <button
               type="button"
               onClick={() => navigate(-1)}
-              className="px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest text-gray-400 hover:text-white transition-all"
+              className="px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest text-text-muted hover:text-text-main transition-all"
             >
               Cancel
             </button>

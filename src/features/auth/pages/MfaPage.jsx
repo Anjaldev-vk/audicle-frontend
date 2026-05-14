@@ -24,7 +24,6 @@ export default function MFAVerifyPage() {
 
   const [mode, setMode] = useState('totp') // 'totp' or 'recovery'
   const [code, setCode] = useState('')
-  const [recoveryRequested, setRecoveryRequested] = useState(false)
 
   // if user refreshes or accesses this page directly without mfaRequired
   if (!mfaRequired || !mfaToken) {
@@ -53,7 +52,6 @@ export default function MFAVerifyPage() {
   const handleRequestRecovery = async () => {
     const result = await dispatch(requestMFARecovery({ mfaToken }))
     if (requestMFARecovery.fulfilled.match(result)) {
-      setRecoveryRequested(true)
       setMode('recovery')
       setCode('')
       toast.success('Recovery code sent to your email.')
@@ -61,10 +59,9 @@ export default function MFAVerifyPage() {
   }
 
   return (
-    <div className="font-[Inter,sans-serif] min-h-screen text-gray-400 flex flex-col items-center justify-center p-6 md:p-10" style={{ background: '#050505' }}>
+    <div className="font-[Inter,sans-serif] min-h-screen text-text-muted flex flex-col items-center justify-center p-6 md:p-10 bg-brand-bg transition-colors duration-300">
       <div 
-        className="w-full max-w-md p-10 md:p-12 rounded-3xl border border-white/5 shadow-2xl transition-all flex flex-col"
-        style={{ background: '#0a0a0a' }}
+        className="w-full max-w-md p-10 md:p-12 rounded-3xl border border-brand-border shadow-2xl transition-all flex flex-col bg-brand-surface"
       >
         <div className="text-center mb-10">
           <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-blue-500/20">
@@ -72,10 +69,10 @@ export default function MFAVerifyPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight mb-3">
+          <h2 className="text-2xl md:text-3xl font-bold text-text-main tracking-tight mb-3">
             {mode === 'totp' ? 'Two-Step Verification' : 'MFA Recovery'}
           </h2>
-          <p className="text-gray-500 text-sm leading-relaxed">
+          <p className="text-text-muted text-sm leading-relaxed">
             {mode === 'totp' 
               ? 'Enter the 6-digit code from your authenticator app to secure your account.'
               : 'Enter the 6-digit emergency code sent to your registered email address.'
@@ -98,7 +95,7 @@ export default function MFAVerifyPage() {
                   placeholder="000000"
                   value={code}
                   onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-                  className="w-full text-center text-3xl tracking-[0.5em] font-mono px-4 py-4 bg-[#111] border border-white/5 rounded-2xl text-white placeholder-gray-800 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all"
+                  className="w-full text-center text-3xl tracking-[0.5em] font-mono px-4 py-4 bg-brand-highlight border border-brand-border rounded-2xl text-text-main placeholder-text-muted/20 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all"
                   autoFocus
                 />
             </div>
@@ -118,19 +115,19 @@ export default function MFAVerifyPage() {
               dispatch(resetMFA())
               navigate('/login')
             }}
-            className="w-full text-gray-500 text-xs font-bold tracking-widest hover:text-white transition-colors"
+            className="w-full text-text-muted text-xs font-bold tracking-widest hover:text-text-main transition-colors"
           >
             BACK TO LOGIN
           </button>
         </form>
 
-        <div className="mt-10 pt-8 border-t border-white/5 text-center px-4">
+        <div className="mt-10 pt-8 border-t border-brand-border text-center px-4">
           {mode === 'totp' ? (
-            <p className="text-xs text-gray-600 leading-relaxed">
+            <p className="text-xs text-text-muted/60 leading-relaxed">
               Lost access to your device? <button onClick={handleRequestRecovery} className="text-blue-500 hover:underline font-medium">Send recovery code to email</button>
             </p>
           ) : (
-            <p className="text-xs text-gray-600 leading-relaxed">
+            <p className="text-xs text-text-muted/60 leading-relaxed">
               Found your device? <button onClick={() => { setMode('totp'); setCode(''); }} className="text-blue-500 hover:underline font-medium">Use authenticator app</button>
             </p>
           )}

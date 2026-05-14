@@ -18,7 +18,11 @@ export const baseApi = createApi({
     'ChatMessage',
     'Notification',
     'ActionItem',
-    'Template'
+    'Template',
+    'Billing',
+    'Usage',
+    'Sessions',
+    'Calendar'
   ],
   endpoints: () => ({}),
 })

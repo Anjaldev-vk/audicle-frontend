@@ -13,17 +13,17 @@ const ConfirmModal = ({ isOpen, onClose, onConfirm, title, message, confirmText 
             <div className={`p-2 rounded-xl ${type === 'danger' ? 'bg-red-500/10 text-red-500' : 'bg-blue-500/10 text-blue-500'}`}>
               <AlertCircle size={20} />
             </div>
-            <h2 className="text-xl font-bold text-white">{title}</h2>
+            <h2 className="text-xl font-bold text-text-main">{title}</h2>
           </div>
-          <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors">
+          <button onClick={onClose} className="text-text-muted hover:text-text-main transition-colors">
             <X size={20} />
           </button>
         </div>
-        <p className="text-gray-400 text-sm mb-8 leading-relaxed">{message}</p>
+        <p className="text-text-muted text-sm mb-8 leading-relaxed">{message}</p>
         <div className="flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl text-xs font-bold tracking-widest transition-all"
+            className="flex-1 py-3 bg-brand-highlight hover:opacity-80 text-text-main border border-brand-border rounded-xl text-xs font-bold tracking-widest transition-all"
           >
             CANCEL
           </button>

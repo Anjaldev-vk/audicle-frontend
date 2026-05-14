@@ -1,18 +1,45 @@
-// hooks/useMeetingSocket.js
-import { useEffect, useRef } from "react";
-import { useSelector } from "react-redux";
+import { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import websocketService from '../../../services/websocketService';
+import { baseApi } from '../../../services/baseApi';
 
-export function useMeetingSocket(meetingId, onEvent) {
-  const accessToken = useSelector((s) => s.auth.accessToken);
-  const wsRef = useRef(null);
+export function useMeetingSocket(meetingId) {
+  const accessToken = useSelector((state) => state.auth.accessToken);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (!meetingId || !accessToken) return;
-    const url = `ws://${window.location.host}/ws/v1/meetings/${meetingId}/?token=${accessToken}`;
-    const ws = new WebSocket(url);
-    wsRef.current = ws;
-    ws.onmessage = (e) => onEvent(JSON.parse(e.data));
-    ws.onerror = (e) => console.error("WS error", e);
-    return () => ws.close();
-  }, [meetingId, accessToken]);
+
+    const path = `/ws/v1/meetings/${meetingId}/`;
+    
+    websocketService.connect(
+      path,
+      accessToken,
+      (message) => {
+        // Handle meeting status updates
+        if (message.type === 'meeting.status') {
+          dispatch(
+            baseApi.util.updateQueryData('getMeeting', meetingId, (draft) => {
+              if (draft) draft.status = message.status;
+            })
+          );
+          // Also invalidate meetings list to reflect changes
+          dispatch(baseApi.util.invalidateTags(['Meeting']));
+        }
+        
+        // Handle transcript/summary ready events
+        if (message.type === 'transcript.ready') {
+          dispatch(baseApi.util.invalidateTags(['Transcript', 'Segment']));
+        }
+        
+        if (message.type === 'summary.ready') {
+          dispatch(baseApi.util.invalidateTags(['Summary']));
+        }
+      }
+    );
+
+    return () => {
+      websocketService.disconnect(path);
+    };
+  }, [meetingId, accessToken, dispatch]);
 }

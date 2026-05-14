@@ -48,8 +48,8 @@ const DashboardPage = () => {
   return (
     <AppLayout>
       <div className="mb-10 animate-in fade-in duration-700">
-        <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">Welcome back, {user?.first_name}</h1>
-        <p className="text-gray-500 font-medium">Here's what's happening with your meeting intelligence today.</p>
+        <h1 className="text-3xl font-bold text-text-main mb-2 tracking-tight">Welcome back, {user?.first_name}</h1>
+        <p className="text-text-muted font-medium">Here's what's happening with your meeting intelligence today.</p>
       </div>
 
       {/* Stats Grid */}
@@ -64,8 +64,8 @@ const DashboardPage = () => {
               <stat.icon className={`w-8 h-8 ${stat.color}`} />
             </div>
             <div>
-              <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">{stat.label}</div>
-              <div className="text-3xl font-bold text-white">{stat.value}</div>
+              <div className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-1.5">{stat.label}</div>
+              <div className="text-3xl font-bold text-text-main">{stat.value}</div>
             </div>
           </div>
         ))}
@@ -75,11 +75,11 @@ const DashboardPage = () => {
         {/* Recent Meetings */}
         <div className="lg:col-span-2">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-xl font-bold text-white flex items-center gap-3">
+            <h2 className="text-xl font-bold text-text-main flex items-center gap-3">
               <Activity className="w-5 h-5 text-blue-500" />
               Recent Intelligence
             </h2>
-            <Link to="/dashboard/meetings" className="text-[10px] font-bold text-blue-500 hover:text-blue-400 uppercase tracking-widest border-b border-blue-500/20 pb-0.5 transition-all">
+            <Link to="/dashboard/meetings" className="text-[10px] font-bold text-brand-primary hover:opacity-80 uppercase tracking-widest border-b border-brand-primary/20 pb-0.5 transition-all">
               View All History
             </Link>
           </div>
@@ -93,18 +93,18 @@ const DashboardPage = () => {
                     to={`/dashboard/meetings/${meeting.id}`}
                     className="flex items-center gap-6 p-6 hover:bg-white/[0.02] transition-all group"
                   >
-                    <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-blue-600/10 transition-colors border border-transparent group-hover:border-blue-500/20">
-                      <Video className="w-6 h-6 text-gray-500 group-hover:text-blue-400" />
+                    <div className="w-12 h-12 rounded-xl bg-brand-highlight flex items-center justify-center group-hover:bg-brand-primary/10 transition-colors border border-transparent group-hover:border-brand-primary/20">
+                      <Video className="w-6 h-6 text-text-muted group-hover:text-brand-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-base font-bold text-white truncate mb-1 group-hover:text-blue-400 transition-colors">{meeting.title}</div>
-                      <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest flex items-center gap-2">
+                      <div className="text-base font-bold text-text-main truncate mb-1 group-hover:text-blue-400 transition-colors">{meeting.title}</div>
+                      <div className="text-[10px] text-text-muted font-bold uppercase tracking-widest flex items-center gap-2">
                         {meeting.created_at ? format(new Date(meeting.created_at), 'MMM d, yyyy') : 'N/A'} 
-                        <span className="w-1 h-1 rounded-full bg-gray-700"></span>
+                        <span className="w-1 h-1 rounded-full bg-brand-border"></span>
                         <BotStatusBadge status={meeting.status} />
                       </div>
                     </div>
-                    <div className="w-10 h-10 rounded-full border border-brand-border flex items-center justify-center text-gray-700 group-hover:text-white group-hover:border-white/20 transition-all">
+                    <div className="w-10 h-10 rounded-full border border-brand-border flex items-center justify-center text-text-muted group-hover:text-text-main group-hover:border-brand-primary/20 transition-all">
                       <ChevronRight className="w-5 h-5" />
                     </div>
                   </Link>
@@ -120,7 +120,7 @@ const DashboardPage = () => {
 
         {/* Quick Actions */}
         <div className="space-y-8">
-          <h2 className="text-xl font-bold text-white flex items-center gap-3">
+          <h2 className="text-xl font-bold text-text-main flex items-center gap-3">
             <TrendingUp className="w-5 h-5 text-indigo-500" />
             Quick Actions
           </h2>
@@ -140,15 +140,15 @@ const DashboardPage = () => {
             </Link>
             
             <div className="bg-brand-surface border border-brand-border rounded-3xl p-8 shadow-xl">
-              <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-6 ml-1">Current Plan</h3>
+              <h3 className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-6 ml-1">Current Plan</h3>
               <div className="flex justify-between items-center bg-brand-bg border border-brand-border p-4 rounded-2xl">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-500">
                     <TrendingUp size={16} />
                   </div>
-                  <span className="text-sm font-bold text-white uppercase tracking-widest">{orgRes?.plan || 'Free'}</span>
+                  <span className="text-sm font-bold text-text-main uppercase tracking-widest">{orgRes?.plan || 'Free'}</span>
                 </div>
-                <Link to="/dashboard/settings" className="text-[10px] font-bold text-gray-500 hover:text-white transition-colors underline uppercase tracking-tighter">Manage</Link>
+                <Link to="/dashboard/settings" className="text-[10px] font-bold text-text-muted hover:text-text-main transition-colors underline uppercase tracking-tighter">Manage</Link>
               </div>
             </div>
           </div>

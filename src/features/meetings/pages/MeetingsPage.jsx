@@ -10,17 +10,20 @@ import AppLayout from '../../../components/layout/AppLayout';
 import { useGetMeetingsQuery } from '../api/meetingsApi';
 import MeetingCard from '../components/MeetingCard';
 import EmptyState from '../../../components/shared/EmptyState';
+import { ListSkeleton } from '../../../components/shared/Skeleton';
 
 const MeetingsPage = () => {
-  const { data: response, isLoading, error } = useGetMeetingsQuery();
+  const { data: response, isLoading, error } = useGetMeetingsQuery(undefined, {
+    pollingInterval: 15000
+  });
   const meetings = response?.data?.results || [];
 
   return (
     <AppLayout>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Meetings</h1>
-          <p className="text-gray-500">Review your AI-powered meeting intelligence and transcripts.</p>
+          <h1 className="text-3xl font-bold text-text-main mb-2">Meetings</h1>
+          <p className="text-text-muted">Review your AI-powered meeting intelligence and transcripts.</p>
         </div>
         <Link 
           to="/dashboard/meetings/upload" 
@@ -32,10 +35,7 @@ const MeetingsPage = () => {
       </div>
 
       {isLoading ? (
-        <div className="flex flex-col items-center justify-center py-32">
-          <Loader2 className="w-12 h-12 text-blue-500 animate-spin mb-6" />
-          <p className="text-gray-500 font-bold uppercase tracking-widest text-xs animate-pulse">Syncing meetings...</p>
-        </div>
+        <ListSkeleton count={6} />
       ) : error ? (
         <div className="bg-red-500/10 border border-red-500/20 rounded-3xl p-8 flex items-center gap-4 text-red-400 max-w-2xl mx-auto">
           <AlertCircle className="w-6 h-6 shrink-0" />
@@ -52,7 +52,7 @@ const MeetingsPage = () => {
           action={
             <Link 
               to="/dashboard/meetings/upload" 
-              className="px-8 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl font-bold text-xs uppercase tracking-widest transition-all border border-brand-border"
+              className="px-8 py-3 bg-brand-surface hover:bg-brand-bg text-text-main rounded-xl font-bold text-xs uppercase tracking-widest transition-all border border-brand-border"
             >
               CREATE YOUR FIRST MEETING
             </Link>

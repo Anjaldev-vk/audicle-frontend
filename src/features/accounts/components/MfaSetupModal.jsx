@@ -19,6 +19,7 @@ const MfaSetupModal = ({ isOpen, onClose }) => {
       setQrData(res.data);
       setStep(2);
     } catch (err) {
+      console.error(err);
       toast.error('Failed to start MFA setup');
     }
   };
@@ -30,6 +31,7 @@ const MfaSetupModal = ({ isOpen, onClose }) => {
       toast.success('MFA enabled successfully');
       onClose();
     } catch (err) {
+      console.error(err);
       toast.error(err?.data?.message || 'Verification failed');
     }
   };
@@ -37,7 +39,7 @@ const MfaSetupModal = ({ isOpen, onClose }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-300">
       <div className="w-full max-w-md bg-brand-surface border border-brand-border rounded-[2.5rem] p-10 shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-300">
-        <button onClick={onClose} className="absolute top-8 right-8 text-gray-500 hover:text-white transition-colors">
+        <button onClick={onClose} className="absolute top-8 right-8 text-text-muted hover:text-text-main transition-colors">
           <X size={20} />
         </button>
 
@@ -47,8 +49,8 @@ const MfaSetupModal = ({ isOpen, onClose }) => {
               <Shield className="w-10 h-10 text-blue-500" />
             </div>
             <div>
-              <h2 className="text-2xl font-black text-white mb-3">Secure Your Account</h2>
-              <p className="text-gray-500 text-sm leading-relaxed px-4">
+              <h2 className="text-2xl font-black text-text-main mb-3">Secure Your Account</h2>
+              <p className="text-text-muted text-sm leading-relaxed px-4">
                 Add an extra layer of security with Two-Factor Authentication. Protect your intelligence from unauthorized access.
               </p>
             </div>
@@ -66,8 +68,8 @@ const MfaSetupModal = ({ isOpen, onClose }) => {
         {step === 2 && (
           <div className="space-y-8">
             <div className="text-center">
-              <h2 className="text-xl font-bold text-white mb-2">Scan QR Code</h2>
-              <p className="text-xs text-gray-500 uppercase tracking-widest font-bold">Step 1: Use your authenticator app</p>
+              <h2 className="text-xl font-bold text-text-main mb-2">Scan QR Code</h2>
+              <p className="text-xs text-text-muted uppercase tracking-widest font-bold">Step 1: Use your authenticator app</p>
             </div>
 
             <div className="bg-white p-4 rounded-3xl mx-auto w-fit shadow-2xl">
@@ -75,15 +77,15 @@ const MfaSetupModal = ({ isOpen, onClose }) => {
             </div>
 
             <div className="text-center">
-              <p className="text-[10px] font-bold text-gray-600 uppercase tracking-widest mb-4">Or enter secret key manually</p>
-              <code className="px-4 py-2 bg-white/5 rounded-xl text-blue-400 font-mono text-sm border border-white/5">
+              <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-4">Or enter secret key manually</p>
+              <code className="px-4 py-2 bg-brand-bg rounded-xl text-blue-400 font-mono text-sm border border-brand-border">
                 {qrData?.secret}
               </code>
             </div>
 
             <button 
               onClick={() => setStep(3)}
-              className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-2xl font-bold text-xs uppercase tracking-widest transition-all"
+              className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-brand-highlight border border-brand-border hover:bg-brand-bg text-text-main rounded-2xl font-bold text-xs uppercase tracking-widest transition-all"
             >
               I've scanned the code
               <ArrowRight size={16} />
@@ -98,8 +100,8 @@ const MfaSetupModal = ({ isOpen, onClose }) => {
                 <Smartphone className="w-8 h-8 text-blue-500" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-white">Verify Code</h2>
-                <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Enter the 6-digit code from your app</p>
+                <h2 className="text-xl font-bold text-text-main">Verify Code</h2>
+                <p className="text-xs text-text-muted font-bold uppercase tracking-widest mt-1">Enter the 6-digit code from your app</p>
               </div>
             </div>
 
@@ -110,7 +112,7 @@ const MfaSetupModal = ({ isOpen, onClose }) => {
                 placeholder="000000"
                 value={code}
                 onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-                className="w-40 text-center text-3xl font-black tracking-[0.3em] bg-transparent border-b-2 border-white/10 focus:border-blue-500 outline-none text-white transition-all pb-2"
+                className="w-40 text-center text-3xl font-black tracking-[0.3em] bg-transparent border-b-2 border-brand-border focus:border-blue-500 outline-none text-text-main transition-all pb-2"
                 autoFocus
               />
             </div>

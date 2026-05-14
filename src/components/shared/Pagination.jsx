@@ -13,7 +13,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       >
         <ChevronLeft size={20} />
       </button>
-      <span className="text-sm font-bold text-white uppercase tracking-widest">
+      <span className="text-sm font-bold text-text-main uppercase tracking-widest">
         Page {currentPage} of {totalPages}
       </span>
       <button

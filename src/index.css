@@ -1,28 +1,117 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400;1,600&display=swap');
 @import "tailwindcss";
 
-@theme {
+:root {
   --font-inter: "Inter", sans-serif;
   --font-playfair: "Playfair Display", serif;
+
+  /* Default Light Theme */
+  --brand-bg: #f8fafc;
+  --brand-surface: #ffffff;
+  --brand-card: #ffffff;
+  --brand-border: rgba(0, 0, 0, 0.08);
+  --brand-highlight: rgba(0, 0, 0, 0.04);
+  --brand-primary: #2563eb;
+  --text-main: #020617;
+  --text-muted: #475569;
+  --text-inverse: #ffffff;
+}
+
+.dark {
+  --brand-bg: #050505;
+  --brand-surface: #0a0a0a;
+  --brand-card: #1c1f26;
+  --brand-border: rgba(255, 255, 255, 0.05);
+  --brand-highlight: rgba(255, 255, 255, 0.05);
+  --brand-primary: #60a5fa;
+  --text-main: #f8fafc;
+  --text-muted: #9ca3af;
+  --text-inverse: #0f172a;
+}
+
+@theme {
+  --font-inter: var(--font-inter);
+  --font-playfair: var(--font-playfair);
   
-  --color-brand-bg: #050505;
-  --color-brand-surface: #0a0a0a;
-  --color-brand-card: #1c1f26;
-  --color-brand-border: rgba(255, 255, 255, 0.05);
+  --color-brand-bg: var(--brand-bg);
+  --color-brand-surface: var(--brand-surface);
+  --color-brand-card: var(--brand-card);
+  --color-brand-border: var(--brand-border);
+  --color-brand-highlight: var(--brand-highlight);
+  --color-brand-primary: var(--brand-primary);
+  --color-text-main: var(--text-main);
+  --color-text-muted: var(--text-muted);
 }
 
 body {
-  background-color: var(--color-brand-bg);
-  color: #9ca3af; /* gray-400 */
+  background-color: var(--brand-bg);
+  color: var(--text-muted);
   font-family: var(--font-inter);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  color: white;
+  color: var(--text-main);
 }
 
 .serif-italic {
   font-family: var(--font-playfair);
   font-style: italic;
   font-weight: 400;
+}
+
+/* Global Scrollbar Reset */
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: none;
+}
+
+/* Custom Scrollbar Utility */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.2);
+  border-radius: 10px;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.3);
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.exporting-pdf .pdf-hide {
+  display: none !important;
 }

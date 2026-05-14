@@ -39,63 +39,62 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="font-[Inter,sans-serif] min-h-screen text-gray-400 flex flex-col items-center justify-center p-6" style={{ background: '#050505' }}>
+    <div className="font-[Inter,sans-serif] min-h-screen text-text-muted flex flex-col items-center justify-center p-6 bg-brand-bg transition-colors duration-300">
       <div 
-        className="w-full max-w-md p-10 md:p-12 rounded-3xl border border-white/5 shadow-2xl transition-all"
-        style={{ background: '#0a0a0a' }}
+        className="w-full max-w-md p-10 md:p-12 rounded-3xl border border-brand-border shadow-2xl transition-all bg-brand-surface"
       >
         <div className="text-center mb-10">
-          <h2 className="text-3xl font-bold text-white tracking-tight mb-3">Set new password</h2>
-          <p className="text-gray-500 text-sm leading-relaxed">
+          <h2 className="text-3xl font-bold text-text-main tracking-tight mb-3">Set new password</h2>
+          <p className="text-text-muted text-sm leading-relaxed">
             Enter the OTP sent to your email and your new password.
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
            <div>
-            <label className="block text-[0.68rem] font-bold tracking-[0.12em] uppercase text-gray-500 mb-2 ml-1">Email Address</label>
+            <label className="block text-[0.68rem] font-bold tracking-[0.12em] uppercase text-text-muted mb-2 ml-1">Email Address</label>
             <input
               type="email"
               required
               readOnly={!!searchParams.get('email')}
-              className="w-full px-4 py-3 bg-[#111] border border-white/5 rounded-xl text-white placeholder-gray-600 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all text-sm"
+              className="w-full px-4 py-3 bg-brand-highlight border border-brand-border rounded-xl text-text-main placeholder-text-muted/50 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all text-sm"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
             />
           </div>
 
           <div>
-            <label className="block text-[0.68rem] font-bold tracking-[0.12em] uppercase text-gray-500 mb-2 ml-1">OTP (6-digits)</label>
+            <label className="block text-[0.68rem] font-bold tracking-[0.12em] uppercase text-text-muted mb-2 ml-1">OTP (6-digits)</label>
             <input
               type="text"
               maxLength="6"
               required
               placeholder="123456"
-              className="w-full px-4 py-3 bg-[#111] border border-white/5 rounded-xl text-white placeholder-gray-600 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all text-sm font-mono tracking-widest"
+              className="w-full px-4 py-3 bg-brand-highlight border border-brand-border rounded-xl text-text-main placeholder-text-muted/50 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all text-sm font-mono tracking-widest"
               value={form.otp}
               onChange={(e) => setForm({ ...form, otp: e.target.value.replace(/\D/g, '') })}
             />
           </div>
 
           <div>
-            <label className="block text-[0.68rem] font-bold tracking-[0.12em] uppercase text-gray-500 mb-2 ml-1">New Password</label>
+            <label className="block text-[0.68rem] font-bold tracking-[0.12em] uppercase text-text-muted mb-2 ml-1">New Password</label>
             <input
               type="password"
               required
               placeholder="••••••••"
-              className="w-full px-4 py-3 bg-[#111] border border-white/5 rounded-xl text-white placeholder-gray-600 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all text-sm"
+              className="w-full px-4 py-3 bg-brand-highlight border border-brand-border rounded-xl text-text-main placeholder-text-muted/50 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all text-sm"
               value={form.new_password}
               onChange={(e) => setForm({ ...form, new_password: e.target.value })}
             />
           </div>
 
           <div>
-            <label className="block text-[0.68rem] font-bold tracking-[0.12em] uppercase text-gray-500 mb-2 ml-1">Confirm New Password</label>
+            <label className="block text-[0.68rem] font-bold tracking-[0.12em] uppercase text-text-muted mb-2 ml-1">Confirm New Password</label>
             <input
               type="password"
               required
               placeholder="••••••••"
-              className="w-full px-4 py-3 bg-[#111] border border-white/5 rounded-xl text-white placeholder-gray-600 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all text-sm"
+              className="w-full px-4 py-3 bg-brand-highlight border border-brand-border rounded-xl text-text-main placeholder-text-muted/50 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all text-sm"
               value={form.confirm_password}
               onChange={(e) => setForm({ ...form, confirm_password: e.target.value })}
             />
@@ -110,7 +109,7 @@ export default function ResetPasswordPage() {
           </button>
 
           <div className="text-center mt-6">
-            <Link to="/login" className="text-xs text-gray-500 hover:text-white transition-colors font-bold tracking-widest no-underline">
+            <Link to="/login" className="text-xs text-text-muted hover:text-text-main transition-colors font-bold tracking-widest no-underline">
               BACK TO LOGIN
             </Link>
           </div>

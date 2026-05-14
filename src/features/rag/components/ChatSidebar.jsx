@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Send,
   X,
@@ -29,6 +29,26 @@ const ChatSidebar = ({ isOpen, onClose, meetingId, meetingTitle }) => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const handleCreateSession = useCallback(async () => {
+    if (isCreating.current) return;
+    isCreating.current = true;
+    try {
+      if (refetchSessions) await refetchSessions();
+      const res = await createSession({ 
+        title: `Chat: ${meetingTitle}`.substring(0, 50) 
+      }).unwrap();
+      if (res?.data?.id) {
+        setSessionId(res.data.id);
+      } else if (res?.id) {
+        setSessionId(res.id);
+      }
+    } catch (err) {
+      console.error('Failed to create chat session', err);
+    } finally {
+      isCreating.current = false;
+    }
+  }, [createSession, meetingTitle, refetchSessions]);
+
   useEffect(() => {
     if (isOpen && sessionsRes?.data && !sessionId && !isCreating.current) {
       const sessions = sessionsRes.data.results || (Array.isArray(sessionsRes.data) ? sessionsRes.data : []);
@@ -39,7 +59,7 @@ const ChatSidebar = ({ isOpen, onClose, meetingId, meetingTitle }) => {
         handleCreateSession();
       }
     }
-  }, [isOpen, sessionsRes, meetingTitle, sessionId]);
+  }, [isOpen, sessionsRes, meetingTitle, sessionId, handleCreateSession]);
 
   useEffect(() => {
     if (sessionDetailRes?.data?.messages) {
@@ -50,29 +70,6 @@ const ChatSidebar = ({ isOpen, onClose, meetingId, meetingTitle }) => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
-  const handleCreateSession = async () => {
-    if (isCreating.current) return;
-    isCreating.current = true;
-    try {
-      if (refetchSessions) await refetchSessions();
-      const res = await createSession({ 
-        title: `Chat: ${meetingTitle}`.substring(0, 50) 
-      }).unwrap();
-      // Backend returns { success: true, data: { id: ... } }
-      // unwrap() returns the full data object from axiosBaseQuery
-      if (res?.data?.id) {
-        setSessionId(res.data.id);
-      } else if (res?.id) {
-        // Fallback if the response is already unwrapped further
-        setSessionId(res.id);
-      }
-    } catch (err) {
-      console.error('Failed to create chat session', err);
-    } finally {
-      isCreating.current = false;
-    }
-  };
 
   const handleSendMessage = async (e, manualContent = null) => {
     if (e) e.preventDefault();
@@ -89,6 +86,7 @@ const ChatSidebar = ({ isOpen, onClose, meetingId, meetingTitle }) => {
         meetingId 
       }).unwrap();
     } catch (err) {
+      console.error(err);
       toast.error('AI is currently unavailable');
       if (!manualContent) setInput(currentInput);
     }
@@ -112,19 +110,19 @@ const ChatSidebar = ({ isOpen, onClose, meetingId, meetingTitle }) => {
         ${isOpen ? 'translate-x-0' : 'translate-x-full'}
       `}>
         {/* Header */}
-        <div className="p-6 border-b border-brand-border flex items-center justify-between bg-white/[0.02]">
+        <div className="p-6 border-b border-brand-border flex items-center justify-between bg-brand-highlight">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-indigo-600/10 flex items-center justify-center border border-indigo-500/20">
               <MessageSquare className="w-5 h-5 text-indigo-400" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-white uppercase tracking-widest">Meeting Intelligence</h2>
-              <p className="text-[10px] text-gray-500 font-medium truncate w-48">Context: {meetingTitle}</p>
+              <h2 className="text-sm font-bold text-text-main uppercase tracking-widest">Meeting Intelligence</h2>
+              <p className="text-[10px] text-text-muted font-medium truncate w-48">Context: {meetingTitle}</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-white/5 rounded-lg text-gray-500 hover:text-white transition-all"
+            className="p-2 hover:bg-brand-bg rounded-lg text-text-muted hover:text-text-main transition-all"
           >
             <X className="w-5 h-5" />
           </button>
@@ -135,16 +133,16 @@ const ChatSidebar = ({ isOpen, onClose, meetingId, meetingTitle }) => {
           {loading ? (
             <div className="h-full flex flex-col items-center justify-center space-y-4">
               <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
-              <p className="text-xs text-gray-500 animate-pulse font-medium">Initializing AI Context...</p>
+              <p className="text-xs text-text-muted animate-pulse font-medium">Initializing AI Context...</p>
             </div>
           ) : (!sessionId && !isCreating.current) ? (
             <div className="h-full flex flex-col items-center justify-center text-center p-8">
               <AlertCircle className="w-8 h-8 text-red-500 mb-4" />
-              <h3 className="text-sm font-bold text-white mb-2">Connection Issue</h3>
-              <p className="text-[10px] text-gray-500 mb-6">We couldn't establish a secure AI session. Please try refreshing or re-logging.</p>
+              <h3 className="text-sm font-bold text-text-main mb-2">Connection Issue</h3>
+              <p className="text-[10px] text-text-muted mb-6">We couldn't establish a secure AI session. Please try refreshing or re-logging.</p>
               <button 
                 onClick={() => handleCreateSession()}
-                className="px-6 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-[10px] font-bold text-white uppercase tracking-widest transition-all"
+                className="px-6 py-2 bg-brand-highlight hover:opacity-80 border border-brand-border rounded-xl text-[10px] font-bold text-text-main uppercase tracking-widest transition-all"
               >
                 Retry Connection
               </button>
@@ -154,8 +152,8 @@ const ChatSidebar = ({ isOpen, onClose, meetingId, meetingTitle }) => {
               <div className="w-16 h-16 bg-indigo-600/10 rounded-2xl flex items-center justify-center mb-6 border border-indigo-500/20">
                 <Sparkles className="w-8 h-8 text-indigo-400" />
               </div>
-              <h3 className="text-lg font-bold text-white mb-2">Ask about this meeting</h3>
-              <p className="text-xs text-gray-500 leading-relaxed">
+              <h3 className="text-lg font-bold text-text-main mb-2">Ask about this meeting</h3>
+              <p className="text-xs text-text-muted leading-relaxed">
                 Ask me to summarize specific parts, find action items, or explain complex discussions.
               </p>
               <div className="mt-8 grid grid-cols-1 gap-3 w-full">
@@ -168,7 +166,7 @@ const ChatSidebar = ({ isOpen, onClose, meetingId, meetingTitle }) => {
                   <button 
                     key={i}
                     onClick={() => handleSendMessage(null, s)}
-                    className="p-3 bg-white/5 hover:bg-white/10 border border-brand-border rounded-xl text-left text-xs text-gray-400 transition-all active:scale-[0.98]"
+                    className="p-3 bg-brand-highlight hover:opacity-80 border border-brand-border rounded-xl text-left text-xs text-text-muted transition-all active:scale-[0.98]"
                   >
                     {s}
                   </button>
@@ -190,7 +188,7 @@ const ChatSidebar = ({ isOpen, onClose, meetingId, meetingTitle }) => {
                 <div className={`flex-1 space-y-2 ${m.role === 'assistant' ? '' : 'text-right'}`}>
                   <div className={`
                     inline-block p-4 rounded-2xl text-xs leading-relaxed
-                    ${m.role === 'assistant' ? 'bg-white/5 text-gray-300 border border-brand-border' : 'bg-blue-600 text-white rounded-tr-none'}
+                    ${m.role === 'assistant' ? 'bg-brand-highlight text-text-main border border-brand-border' : 'bg-blue-600 text-white rounded-tr-none'}
                   `}>
                     {m.content}
                   </div>
@@ -204,11 +202,11 @@ const ChatSidebar = ({ isOpen, onClose, meetingId, meetingTitle }) => {
                 <Loader2 className="w-4 h-4 text-indigo-400 animate-spin" />
               </div>
               <div className="flex-1">
-                <div className="inline-block p-4 rounded-2xl bg-white/5 border border-brand-border">
+                <div className="inline-block p-4 rounded-2xl bg-brand-highlight border border-brand-border">
                   <div className="flex gap-1">
-                    <div className="w-1 h-1 bg-gray-600 rounded-full animate-bounce"></div>
-                    <div className="w-1 h-1 bg-gray-600 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                    <div className="w-1 h-1 bg-gray-600 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                    <div className="w-1 h-1 bg-text-muted rounded-full animate-bounce"></div>
+                    <div className="w-1 h-1 bg-text-muted rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                    <div className="w-1 h-1 bg-text-muted rounded-full animate-bounce [animation-delay:-0.3s]"></div>
                   </div>
                 </div>
               </div>
@@ -226,20 +224,20 @@ const ChatSidebar = ({ isOpen, onClose, meetingId, meetingTitle }) => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               disabled={sending || !sessionId}
-              className="w-full bg-brand-bg border border-brand-border focus:border-blue-500/50 rounded-xl pl-4 pr-12 py-4 text-xs text-white transition-all outline-none"
+              className="w-full bg-brand-bg border border-brand-border focus:border-blue-500/50 rounded-xl pl-4 pr-12 py-4 text-xs text-text-main transition-all outline-none"
             />
             <button
               type="submit"
               disabled={!input.trim() || sending || !sessionId}
               className={`
                 absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg flex items-center justify-center transition-all
-                ${!input.trim() || sending ? 'text-gray-700 bg-white/5' : 'text-white bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-600/20'}
+                ${!input.trim() || sending ? 'text-text-muted bg-brand-highlight' : 'text-white bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-600/20'}
               `}
             >
               <Send className="w-4 h-4" />
             </button>
           </form>
-          <p className="mt-3 text-[9px] font-bold text-gray-600 text-center uppercase tracking-widest flex items-center justify-center gap-1.5">
+          <p className="mt-3 text-[9px] font-bold text-text-muted text-center uppercase tracking-widest flex items-center justify-center gap-1.5">
             <Sparkles className="w-2.5 h-2.5 text-indigo-500" /> AI-Powered Analysis
           </p>
         </div>

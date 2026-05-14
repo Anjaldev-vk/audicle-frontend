@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { 
   MessageSquare, 
   Send, 
@@ -23,53 +23,55 @@ import {
 } from '../api/ragApi';
 import { useDispatch } from 'react-redux';
 import toast from 'react-hot-toast';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
 const ChatPage = () => {
-  const location = useLocation();
+  const [searchParams] = useSearchParams();
   const dispatch = useDispatch();
   const [currentSessionId, setCurrentSessionId] = useState(null);
   const [input, setInput] = useState('');
   const messagesEndRef = useRef(null);
 
   const { data: sessionsRes, isLoading: sessionsLoading } = useGetChatSessionsQuery();
-  const { data: sessionRes, isFetching: sessionLoading } = useGetChatSessionQuery(currentSessionId, { skip: !currentSessionId });
+  const { data: sessionRes } = useGetChatSessionQuery(currentSessionId, { skip: !currentSessionId });
   
   const [createSession] = useCreateChatSessionMutation();
   const [sendMessage, { isLoading: isSending }] = useSendMessageMutation();
 
   const sessions = sessionsRes?.data || [];
   const session = sessionRes?.data;
-  const messages = session?.messages || [];
+  const messages = useMemo(() => session?.messages || [], [session]);
 
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isSending]);
+  }, [messages, isSending, scrollToBottom]);
 
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const query = params.get('q');
-    if (query && sessions.length === 0) {
-      handleAutoSearch(query);
-    }
-  }, [location.search, sessions.length]);
-
-  const handleAutoSearch = async (query) => {
+  const handleAutoSearch = useCallback(async (query) => {
     try {
       const newSession = await createSession({ title: query.substring(0, 30) + '...' }).unwrap();
       setCurrentSessionId(newSession.data.id);
       await sendMessage({ sessionId: newSession.data.id, content: query }).unwrap();
     } catch (err) {
+      console.error(err);
       toast.error('Failed to start search chat');
     }
-  };
+  }, [createSession, sendMessage]);
+
+  // Handle auto-search from URL params
+  useEffect(() => {
+    const query = searchParams.get('q');
+    if (query && sessions.length === 0 && !sessionsLoading && !currentSessionId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      handleAutoSearch(query);
+    }
+  }, [searchParams, sessions.length, sessionsLoading, currentSessionId, handleAutoSearch]);
 
   const handleSendMessage = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (!input.trim() || isSending) return;
 
     const content = input;
@@ -84,6 +86,7 @@ const ChatPage = () => {
       }
       await sendMessage({ sessionId, content }).unwrap();
     } catch (err) {
+      console.error(err);
       toast.error('Failed to get AI response');
     }
   };
@@ -96,11 +99,11 @@ const ChatPage = () => {
   const handleDeleteSession = async (id, e) => {
     e.stopPropagation();
     try {
-      // Manual delete call as it's not in ragApi yet (adding it now)
       await dispatch(ragApi.endpoints.deleteChatSession.initiate(id)).unwrap();
       if (currentSessionId === id) createNewSession();
       toast.success('Conversation deleted');
     } catch (err) {
+      console.error(err);
       toast.error('Failed to delete session');
     }
   };
@@ -142,7 +145,7 @@ const ChatPage = () => {
                 >
                   <div className="flex items-center gap-4 min-w-0">
                     <MessageCircle className={`w-4 h-4 shrink-0 ${currentSessionId === s.id ? 'text-blue-500' : 'text-gray-600'}`} />
-                    <span className={`text-xs truncate font-bold tracking-tight ${currentSessionId === s.id ? 'text-blue-100' : 'text-gray-500 group-hover:text-gray-200'}`}>
+                    <span className={`text-xs truncate font-bold tracking-tight ${currentSessionId === s.id ? 'text-brand-primary' : 'text-text-muted group-hover:text-text-main'}`}>
                       {s.title || 'Untitled Session'}
                     </span>
                   </div>
@@ -173,7 +176,7 @@ const ChatPage = () => {
                 <Sparkles className="w-6 h-6 text-indigo-400" />
               </div>
               <div>
-                <h2 className="text-sm font-black text-white uppercase tracking-[0.2em] leading-none">RAG Analysis Engine</h2>
+                <h2 className="text-sm font-black text-text-main uppercase tracking-[0.2em] leading-none">RAG Analysis Engine</h2>
                 <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-2 opacity-60">Synthesizing workspace knowledge</p>
               </div>
             </div>
@@ -187,8 +190,8 @@ const ChatPage = () => {
                    <div className="absolute inset-0 bg-blue-600/20 blur-3xl rounded-full opacity-50 group-hover/icon:opacity-100 transition-opacity"></div>
                   <Bot className="w-12 h-12 text-blue-500 relative z-10" />
                 </div>
-                <h3 className="text-3xl font-black text-white mb-4 tracking-tighter">Knowledge Discovery</h3>
-                <p className="text-gray-500 max-w-md leading-relaxed font-medium">
+                <h3 className="text-3xl font-black text-text-main mb-4 tracking-tighter">Knowledge Discovery</h3>
+                <p className="text-text-muted max-w-md leading-relaxed font-medium">
                   Interrogate your entire meeting history. I'll search through transcripts and summaries to find precise answers with citations.
                 </p>
                 <div className="grid grid-cols-2 gap-4 mt-16 max-w-2xl">
@@ -201,7 +204,7 @@ const ChatPage = () => {
                     <button 
                       key={i}
                       onClick={() => setInput(suggestion)}
-                      className="p-5 bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 rounded-2xl text-left text-xs text-gray-500 transition-all hover:border-blue-500/30 font-bold tracking-tight hover:text-white"
+                      className="p-5 bg-brand-highlight hover:bg-brand-primary/5 border border-brand-border rounded-2xl text-left text-xs text-text-muted transition-all hover:border-brand-primary/30 font-bold tracking-tight hover:text-text-main"
                     >
                       {suggestion}
                     </button>
@@ -223,7 +226,7 @@ const ChatPage = () => {
                   <div className={`flex-1 space-y-6 max-w-3xl ${m.role === 'assistant' ? '' : 'flex flex-col items-end'}`}>
                     <div className={`
                       inline-block p-8 rounded-[2rem] text-sm leading-relaxed shadow-2xl
-                      ${m.role === 'assistant' ? 'bg-white/[0.03] text-gray-300 border border-white/5' : 'bg-blue-600 text-white rounded-tr-none'}
+                      ${m.role === 'assistant' ? 'bg-brand-highlight text-text-main border border-brand-border' : 'bg-brand-primary text-white rounded-tr-none'}
                     `}>
                       {m.content}
                     </div>
@@ -276,7 +279,7 @@ const ChatPage = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 disabled={isSending}
-                className="w-full bg-brand-bg border border-brand-border focus:border-blue-500/50 rounded-3xl pl-8 pr-20 py-6 text-sm text-white transition-all outline-none shadow-2xl relative z-10 font-medium placeholder:text-gray-700"
+                className="w-full bg-brand-bg border border-brand-border focus:border-brand-primary/50 rounded-3xl pl-8 pr-20 py-6 text-sm text-text-main transition-all outline-none shadow-2xl relative z-10 font-medium placeholder:text-text-muted/50"
               />
               <button 
                 type="submit"

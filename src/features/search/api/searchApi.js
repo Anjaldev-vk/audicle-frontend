@@ -3,9 +3,9 @@ import { baseApi } from '../../../services/baseApi'
 export const searchApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     search: builder.query({
-      query: ({ q, type = 'all' }) => ({
+      query: (params) => ({
         url: 'search/',
-        params: { q, type },
+        params,
       }),
     }),
   }),
