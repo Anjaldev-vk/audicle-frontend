@@ -1,4 +1,15 @@
-const WS_URL = import.meta.env.VITE_WS_URL || `ws://${window.location.host}`
+const getWsUrl = () => {
+  if (import.meta.env.VITE_WS_URL) {
+    return import.meta.env.VITE_WS_URL
+  }
+  const apiUrl = import.meta.env.VITE_API_URL
+  if (apiUrl) {
+    return apiUrl.replace(/^http/, 'ws')
+  }
+  return `ws://${window.location.host}`
+}
+
+const WS_URL = getWsUrl()
 
 class WebSocketService {
   constructor() {
@@ -11,7 +22,14 @@ class WebSocketService {
       return this.sockets.get(path)
     }
 
-    const url = `${WS_URL}${path}?token=${token}`
+    let cleanWsUrl = WS_URL
+    let cleanPath = path
+    if (cleanWsUrl.endsWith('/') && cleanPath.startsWith('/')) {
+      cleanWsUrl = cleanWsUrl.slice(0, -1)
+    } else if (!cleanWsUrl.endsWith('/') && !cleanPath.startsWith('/')) {
+      cleanWsUrl = cleanWsUrl + '/'
+    }
+    const url = `${cleanWsUrl}${cleanPath}?token=${token}`
     const ws = new WebSocket(url)
 
     ws.onopen = () => {

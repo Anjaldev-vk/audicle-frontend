@@ -38,7 +38,7 @@ export const meetingApi = baseApi.injectEndpoints({
         url: `meetings/${meetingId}/bot/dispatch/`,
         method: 'POST',
       }),
-      invalidatesTags: (result, error, id) => [{ type: 'Meeting', id }],
+      invalidatesTags: (result, error, id) => [{ type: 'Meeting', id }, 'Notification'],
     }),
     stopBot: builder.mutation({
       query: (meetingId) => ({
@@ -60,7 +60,7 @@ export const meetingApi = baseApi.injectEndpoints({
         method: 'POST',
         body: { s3_key: s3Key },
       }),
-      invalidatesTags: (result, error, { meetingId }) => [{ type: 'Meeting', id: meetingId }],
+      invalidatesTags: (result, error, { meetingId }) => [{ type: 'Meeting', id: meetingId }, 'Notification'],
     }),
     getTemplates: builder.query({
       query: () => 'meetings/templates/',

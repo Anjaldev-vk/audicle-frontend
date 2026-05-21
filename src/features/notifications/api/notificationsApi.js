@@ -5,14 +5,19 @@ export const notificationsApi = baseApi.injectEndpoints({
     getNotifications: builder.query({
       query: ({ limit = 20, lastKey = null } = {}) => ({
         url: 'notifications/',
-        params: { limit, last_key: lastKey }
+        params: { 
+          limit, 
+          last_key: lastKey && lastKey !== 'null' && lastKey !== 'undefined'
+            ? (typeof lastKey === 'object' ? JSON.stringify(lastKey) : lastKey)
+            : undefined
+        }
       }),
       // Always merge the results for infinite scrolling
       serializeQueryArgs: ({ endpointName }) => {
         return endpointName
       },
-      merge: (currentCache, newItems) => {
-        if (!currentCache) return newItems
+      merge: (currentCache, newItems, { arg }) => {
+        if (!currentCache || !arg?.lastKey) return newItems
         // If we have a lastKey, it's a pagination request, so append
         // If no lastKey, it's a refresh, so replace
         return {

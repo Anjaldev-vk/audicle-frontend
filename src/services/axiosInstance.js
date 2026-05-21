@@ -52,6 +52,15 @@ export const setupInterceptors = (store) => {
     (response) => response,
     async (error) => {
       const originalRequest = error.config
+      const errorCode = error.response?.data?.code
+      if (
+        error.response?.status === 403 &&
+        ['invalid_workspace', 'unauthorized_workspace', 'workspace_resolution_error'].includes(errorCode)
+      ) {
+        store.dispatch({ type: 'workspace/clearWorkspace' })
+        store.dispatch({ type: 'api/resetApiState' })
+      }
+
       if (error.response?.status === 401 && !originalRequest._retry) {
         if (isRefreshing) {
           return new Promise((resolve, reject) => {

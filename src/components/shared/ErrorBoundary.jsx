@@ -24,7 +24,7 @@ class ErrorBoundary extends React.Component {
           </div>
           <h2 className="text-2xl font-black text-text-main mb-4 tracking-tight">Intelligence System Failure</h2>
           <p className="text-text-muted max-w-md mx-auto mb-10 text-sm font-medium leading-relaxed">
-            A critical error occurred while processing this segment of the platform. Our neural core has been notified.
+            A critical error occurred. Our support team has been notified.
           </p>
           <div className="flex gap-4">
             <button 

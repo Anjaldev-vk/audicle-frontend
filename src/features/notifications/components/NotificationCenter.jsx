@@ -47,11 +47,12 @@ const NotificationCenter = () => {
   };
 
   const handleNotificationClick = async (n) => {
-    if (!n.is_read) {
+    if (n.is_read !== 'true' && n.is_read !== true) {
       await markAsRead({ id: n.id, sk: n.sk }).unwrap();
     }
-    if (n.meeting_id) {
-      navigate(`/dashboard/meetings/${n.meeting_id}`);
+    const meetingId = n.meeting_id || n.metadata?.meeting_id;
+    if (meetingId) {
+      navigate(`/dashboard/meetings/${meetingId}`);
       setIsOpen(false);
     }
   };
@@ -105,20 +106,20 @@ const NotificationCenter = () => {
                     <div 
                       key={n.id} 
                       onClick={() => handleNotificationClick(n)}
-                      className={`p-5 hover:bg-brand-bg/50 transition-all group relative cursor-pointer ${!n.is_read ? 'bg-blue-600/[0.03]' : ''}`}
+                      className={`p-5 hover:bg-brand-bg/50 transition-all group relative cursor-pointer ${n.is_read !== 'true' && n.is_read !== true ? 'bg-blue-600/[0.03]' : ''}`}
                     >
                       <div className="flex gap-4">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center border shrink-0 ${!n.is_read ? 'bg-blue-600/10 border-blue-500/20' : 'bg-brand-bg/50 border-brand-border'}`}>
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center border shrink-0 ${n.is_read !== 'true' && n.is_read !== true ? 'bg-blue-600/10 border-blue-500/20' : 'bg-brand-bg/50 border-brand-border'}`}>
                           {getIcon(n.type)}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-2 mb-1">
-                            <span className={`text-xs font-bold truncate ${!n.is_read ? 'text-text-main' : 'text-text-muted'}`}>{n.title}</span>
+                            <span className={`text-xs font-bold truncate ${n.is_read !== 'true' && n.is_read !== true ? 'text-text-main' : 'text-text-muted'}`}>{n.title}</span>
                             <span className="text-[9px] font-bold text-text-muted uppercase whitespace-nowrap">
                               {formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}
                             </span>
                           </div>
-                          <p className={`text-xs leading-relaxed line-clamp-2 ${!n.is_read ? 'text-text-main/80' : 'text-text-muted/70'}`}>{n.message}</p>
+                          <p className={`text-xs leading-relaxed line-clamp-2 ${n.is_read !== 'true' && n.is_read !== true ? 'text-text-main/80' : 'text-text-muted/70'}`}>{n.message}</p>
                         </div>
                       </div>
                       

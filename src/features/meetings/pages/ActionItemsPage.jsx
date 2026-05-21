@@ -7,16 +7,40 @@ import {
   MoreVertical, 
   Calendar,
   Filter,
-  Loader2,
   AlertCircle,
   Search
 } from 'lucide-react';
 import { useGetActionItemsQuery, useUpdateActionItemMutation } from '../api/actionItemsApi';
 import { format } from 'date-fns';
 import { toast } from 'react-hot-toast';
+import Skeleton from '../../../components/shared/Skeleton';
+
+const safeFormatDate = (dateStr) => {
+  if (!dateStr) return 'No date';
+  try {
+    // Parse YYYY-MM-DD strings locally to prevent timezone shifting (e.g., showing the previous day)
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      const year = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1; // 0-indexed month
+      const day = parseInt(parts[2], 10);
+      const d = new Date(year, month, day);
+      if (!isNaN(d.getTime())) {
+        return format(d, 'MMM d');
+      }
+    }
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return 'No date';
+    return format(d, 'MMM d');
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return 'No date';
+  }
+};
 
 const ActionItemCard = ({ item, onToggle }) => {
   const isCompleted = item.status === 'completed';
+  const hasAssignee = item.assignee_name && item.assignee_name.trim().length > 0;
 
   return (
     <div className={`bg-brand-surface border ${isCompleted ? 'border-emerald-500/20' : 'border-brand-border'} p-6 rounded-3xl transition-all hover:border-brand-border-hover group`}>
@@ -35,20 +59,20 @@ const ActionItemCard = ({ item, onToggle }) => {
             </span>
             <div className="flex items-center gap-1 text-[10px] text-text-muted font-bold uppercase tracking-widest">
               <Calendar className="w-3 h-3" />
-              {item.due_date ? format(new Date(item.due_date), 'MMM d') : 'No date'}
+              {safeFormatDate(item.due_date)}
             </div>
           </div>
           
           <h3 className={`text-base font-medium mb-3 leading-relaxed ${isCompleted ? 'text-text-muted line-through' : 'text-text-main'}`}>
-            {item.content}
+            {item.content || item.text || 'No description'}
           </h3>
           
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              {item.assignee_name && (
+              {hasAssignee && (
                 <div className="flex items-center gap-2 px-2 py-1 bg-brand-highlight rounded-lg border border-brand-border">
                   <div className="w-4 h-4 rounded-full bg-blue-600 flex items-center justify-center text-[8px] font-bold text-white">
-                    {item.assignee_name[0]}
+                    {item.assignee_name.trim()[0]}
                   </div>
                   <span className="text-[10px] font-bold text-text-muted">{item.assignee_name}</span>
                 </div>
@@ -116,9 +140,26 @@ const ActionItemsPage = () => {
       </div>
 
       {isLoading ? (
-        <div className="flex flex-col items-center justify-center py-32">
-          <Loader2 className="w-12 h-12 text-blue-500 animate-spin mb-6" />
-          <p className="text-text-muted font-bold uppercase tracking-widest text-xs animate-pulse">Fetching action items...</p>
+        <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-6">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="bg-brand-surface border border-brand-border p-6 rounded-3xl space-y-4 animate-pulse">
+              <div className="flex items-start gap-4">
+                <Skeleton className="w-6 h-6 rounded-full shrink-0 mt-1" />
+                <div className="flex-1 space-y-3">
+                  <div className="flex justify-between items-center">
+                    <Skeleton className="w-24 h-3" />
+                    <Skeleton className="w-16 h-3" />
+                  </div>
+                  <Skeleton className="w-full h-5" />
+                  <Skeleton className="w-3/4 h-5" />
+                  <div className="flex justify-between items-center pt-2">
+                    <Skeleton className="w-20 h-5 rounded-lg" />
+                    <Skeleton className="w-4 h-4 rounded-full" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       ) : error ? (
         <div className="bg-red-500/10 border border-red-500/20 rounded-3xl p-12 text-center max-w-2xl mx-auto">

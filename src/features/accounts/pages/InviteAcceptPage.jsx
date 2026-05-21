@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux'
 import { selectIsLoggedIn } from '../../auth/slices/authSlice'
 import { toast } from 'react-hot-toast'
 import { Building2, Loader2, CheckCircle, XCircle, UserPlus } from 'lucide-react'
+import Skeleton from '../../../components/shared/Skeleton'
 
 export default function InviteAcceptPage() {
   const { code } = useParams()
@@ -43,10 +44,30 @@ export default function InviteAcceptPage() {
   // Loading state
   if (isVerifying) {
     return (
-      <div className="min-h-screen bg-brand-bg flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 text-indigo-500 animate-spin mx-auto mb-4" />
-          <p className="text-text-muted text-sm font-bold uppercase tracking-widest">Verifying invitation…</p>
+      <div className="min-h-screen bg-brand-bg flex items-center justify-center p-6 relative overflow-hidden">
+        {/* Background decoration */}
+        <div className="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden">
+          <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-indigo-500/5 rounded-full blur-[120px]" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-purple-500/5 rounded-full blur-[120px]" />
+        </div>
+
+        <div className="max-w-md w-full bg-brand-surface border border-brand-border rounded-3xl p-10 shadow-2xl space-y-8 animate-pulse">
+          <div className="text-center space-y-4">
+            <Skeleton className="w-20 h-20 rounded-3xl mx-auto" />
+            <Skeleton className="w-48 h-6 rounded-lg mx-auto" />
+            <Skeleton className="w-64 h-4 rounded-lg mx-auto" />
+          </div>
+
+          <div className="bg-brand-bg border border-brand-border rounded-2xl p-6 space-y-4">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="space-y-2">
+                <Skeleton className="w-16 h-3 rounded-lg" />
+                <Skeleton className="w-3/4 h-5 rounded-lg" />
+              </div>
+            ))}
+          </div>
+
+          <Skeleton className="w-full h-12 rounded-xl" />
         </div>
       </div>
     )

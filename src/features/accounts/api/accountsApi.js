@@ -24,34 +24,34 @@ export const accountsApi = baseApi.injectEndpoints({
       providesTags: ['Membership'],
     }),
 
-    // POST /api/v1/accounts/organisation/invites/
+    // POST /api/v1/accounts/organisation/invite/
     inviteMember: builder.mutation({
       query: (data) => ({
-        url: 'accounts/organisation/invites/',
+        url: 'accounts/organisation/invite/',
         method: 'POST',
         body: data,
       }),
       invalidatesTags: ['Membership'],
     }),
 
-    // DELETE /api/v1/accounts/organisation/members/<uuid>/
+    // DELETE /api/v1/accounts/organisation/members/<uuid>/remove/
     removeMember: builder.mutation({
       query: (userId) => ({
-        url: `accounts/organisation/members/${userId}/`,
+        url: `accounts/organisation/members/${userId}/remove/`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Membership'],
     }),
 
-    // GET /api/v1/accounts/organisation/invites/<code>/verify/
+    // GET /api/v1/accounts/invite/<code>/
     verifyInvite: builder.query({
-      query: (code) => `accounts/organisation/invites/${code}/verify/`,
+      query: (code) => `accounts/invite/${code}/`,
     }),
 
-    // POST /api/v1/accounts/invites/<code>/accept/
+    // POST /api/v1/accounts/invite/<code>/accept/
     acceptInvite: builder.mutation({
       query: (code) => ({
-        url: `accounts/invites/${code}/accept/`,
+        url: `accounts/invite/${code}/accept/`,
         method: 'POST',
       }),
       invalidatesTags: ['Organisation', 'Workspace'],

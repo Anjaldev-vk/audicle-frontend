@@ -17,11 +17,12 @@ const ChatSidebar = ({ isOpen, onClose, meetingId, meetingTitle }) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [sessionId, setSessionId] = useState(null);
+  const [apiError, setApiError] = useState(null);
   const messagesEndRef = useRef(null);
 
   // RTK Query
-  const { data: sessionsRes, isLoading: sessionsLoading, refetch: refetchSessions } = useGetChatSessionsQuery(undefined, { skip: !isOpen });
-  const { data: sessionDetailRes, isFetching: sessionFetching } = useGetChatSessionQuery(sessionId, { skip: !sessionId });
+  const { data: sessionsRes, isLoading: sessionsLoading, error: sessionsError, refetch: refetchSessions } = useGetChatSessionsQuery(undefined, { skip: !isOpen });
+  const { data: sessionDetailRes, isFetching: sessionFetching, error: detailError } = useGetChatSessionQuery(sessionId, { skip: !sessionId });
   const [createSession] = useCreateChatSessionMutation();
   const [sendMessage, { isLoading: sending }] = useSendMessageMutation();
 
@@ -29,9 +30,22 @@ const ChatSidebar = ({ isOpen, onClose, meetingId, meetingTitle }) => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  useEffect(() => {
+    if (sessionsError) {
+      setApiError(sessionsError?.data?.message || sessionsError?.message || JSON.stringify(sessionsError));
+    }
+  }, [sessionsError]);
+
+  useEffect(() => {
+    if (detailError) {
+      setApiError(detailError?.data?.message || detailError?.message || JSON.stringify(detailError));
+    }
+  }, [detailError]);
+
   const handleCreateSession = useCallback(async () => {
     if (isCreating.current) return;
     isCreating.current = true;
+    setApiError(null);
     try {
       if (refetchSessions) await refetchSessions();
       const res = await createSession({ 
@@ -44,14 +58,17 @@ const ChatSidebar = ({ isOpen, onClose, meetingId, meetingTitle }) => {
       }
     } catch (err) {
       console.error('Failed to create chat session', err);
+      setApiError(err?.data?.message || err?.message || JSON.stringify(err));
     } finally {
       isCreating.current = false;
     }
   }, [createSession, meetingTitle, refetchSessions]);
 
   useEffect(() => {
-    if (isOpen && sessionsRes?.data && !sessionId && !isCreating.current) {
-      const sessions = sessionsRes.data.results || (Array.isArray(sessionsRes.data) ? sessionsRes.data : []);
+    if (isOpen && sessionsRes && !sessionId && !isCreating.current) {
+      const sessions = sessionsRes.data?.results || 
+                       sessionsRes.results || 
+                       (Array.isArray(sessionsRes.data) ? sessionsRes.data : (Array.isArray(sessionsRes) ? sessionsRes : []));
       const existingSession = sessions.find(s => s.title?.includes(meetingTitle));
       if (existingSession) {
         setSessionId(existingSession.id);
@@ -139,10 +156,20 @@ const ChatSidebar = ({ isOpen, onClose, meetingId, meetingTitle }) => {
             <div className="h-full flex flex-col items-center justify-center text-center p-8">
               <AlertCircle className="w-8 h-8 text-red-500 mb-4" />
               <h3 className="text-sm font-bold text-text-main mb-2">Connection Issue</h3>
-              <p className="text-[10px] text-text-muted mb-6">We couldn't establish a secure AI session. Please try refreshing or re-logging.</p>
+              <p className="text-[10px] text-text-muted mb-4">We couldn't establish a secure AI session. Please try refreshing or re-logging.</p>
+              
+              {apiError && (
+                <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] font-mono rounded-xl max-w-full overflow-x-auto text-left leading-normal">
+                  <strong>Error details:</strong> {apiError}
+                </div>
+              )}
+
               <button 
-                onClick={() => handleCreateSession()}
-                className="px-6 py-2 bg-brand-highlight hover:opacity-80 border border-brand-border rounded-xl text-[10px] font-bold text-text-main uppercase tracking-widest transition-all"
+                onClick={() => {
+                  setApiError(null);
+                  handleCreateSession();
+                }}
+                className="px-6 py-2 bg-brand-highlight hover:opacity-80 border border-brand-border rounded-xl text-[10px] font-bold text-text-main uppercase tracking-widest transition-all cursor-pointer"
               >
                 Retry Connection
               </button>

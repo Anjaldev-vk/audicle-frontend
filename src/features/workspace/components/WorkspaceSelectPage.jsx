@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { useGetWorkspacesQuery, useCreateWorkspaceMutation } from '../api/workspaceApi'
 import { switchWorkspace, setWorkspaces } from '../slices/workspaceSlice'
-import { selectWorkspacePlan } from '../slices/workspaceSlice'
 import { Building2, User, Loader2, Plus, LogOut, X, Crown, AlertTriangle } from 'lucide-react'
 import { logoutUser } from '../../auth/slices/authSlice'
 import { clearWorkspace } from '../slices/workspaceSlice'
 import { baseApi } from '../../../services/baseApi'
 import { toast } from 'react-hot-toast'
+import Skeleton from '../../../components/shared/Skeleton'
 
 // ── Plan limits ──────────────────────────────────
 const PLAN_LIMITS = {
@@ -27,7 +27,7 @@ export default function WorkspaceSelectPage() {
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [newOrg, setNewOrg] = useState({ name: '', slug: '' })
 
-  const workspaces = response?.data?.results || []
+  const workspaces = useMemo(() => response?.data?.results || [], [response])
 
   useEffect(() => {
     if (workspaces.length) {
@@ -48,8 +48,8 @@ export default function WorkspaceSelectPage() {
       role: ws.role ?? null,
       plan: ws.plan ?? 'free',
     }
-    dispatch(baseApi.util.resetApiState())
     dispatch(switchWorkspace(payload))
+    dispatch(baseApi.util.resetApiState())
     navigate('/dashboard')
   }
 
@@ -79,8 +79,46 @@ export default function WorkspaceSelectPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-brand-bg">
-        <Loader2 className="w-12 h-12 text-indigo-500 animate-spin" />
+      <div className="min-h-screen bg-brand-bg text-text-main flex flex-col items-center justify-center p-6 relative overflow-hidden">
+        {/* Background decoration */}
+        <div className="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden">
+          <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-indigo-500/5 rounded-full blur-[120px]" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-purple-500/5 rounded-full blur-[120px]" />
+        </div>
+
+        {/* Header Skeleton */}
+        <div className="max-w-4xl w-full text-center mb-12">
+          <div className="flex justify-center mb-4">
+            <Skeleton className="w-64 h-10 rounded-2xl" />
+          </div>
+          <div className="flex justify-center">
+            <Skeleton className="w-48 h-4 rounded-lg" />
+          </div>
+        </div>
+
+        {/* Workspace Grid Skeleton */}
+        <div className="max-w-4xl w-full grid grid-cols-1 md:grid-cols-2 gap-6">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="bg-brand-surface border border-brand-border p-8 rounded-3xl">
+              <div className="flex items-center space-x-6">
+                <Skeleton className="w-16 h-16 rounded-2xl shrink-0" />
+                <div className="flex-1 space-y-3">
+                  <Skeleton className="w-3/4 h-6 rounded-lg" />
+                  <Skeleton className="w-1/2 h-4 rounded-lg" />
+                </div>
+              </div>
+            </div>
+          ))}
+          <div className="border-2 border-dashed border-brand-border/40 p-8 rounded-3xl flex items-center justify-center space-x-3">
+            <Skeleton className="w-6 h-6 rounded-md" />
+            <Skeleton className="w-36 h-6 rounded-lg" />
+          </div>
+        </div>
+
+        {/* Footer Skeleton */}
+        <div className="mt-12">
+          <Skeleton className="w-20 h-4 rounded-lg" />
+        </div>
       </div>
     )
   }
@@ -99,7 +137,7 @@ export default function WorkspaceSelectPage() {
           Select Workspace
         </h1>
         <p className="text-text-muted text-sm font-bold uppercase tracking-widest">
-          Choose an intelligence repository to continue
+          Choose a workspace to continue
         </p>
       </div>
 

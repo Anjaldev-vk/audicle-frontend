@@ -43,9 +43,10 @@ export default function SettingsPage() {
   const user = useSelector(selectUser)
   const activeWorkspace = useSelector(selectActiveWorkspace)
   const [activeTab, setActiveTab] = useState('profile')
+  const isOrganisationWorkspace = activeWorkspace?.type === 'organisation'
 
-  const { data: org } = useGetOrganisationQuery()
-  const { data: membersResponse } = useGetMembersQuery()
+  const { data: org } = useGetOrganisationQuery(undefined, { skip: !isOrganisationWorkspace })
+  const { data: membersResponse } = useGetMembersQuery(undefined, { skip: !isOrganisationWorkspace })
   const [updateOrganisation, { isLoading: isUpdatingOrg }] = useUpdateOrganisationMutation()
   const [inviteMember, { isLoading: isInviting }] = useInviteMemberMutation()
   const [removeMember] = useRemoveMemberMutation()
@@ -65,18 +66,27 @@ export default function SettingsPage() {
   const [showUpgrade, setShowUpgrade] = useState(false)
 
   useEffect(() => {
-    if (org && !orgForm.name && !orgForm.slug) {
+    const organisation = org?.data || org
+    if (organisation && !orgForm.name && !orgForm.slug) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setOrgForm(prev => ({
         ...prev,
-        name: org.name || org.data?.name || '',
-        slug: org.slug || org.data?.slug || '',
-        logo_url: org.logo_url || org.data?.logo_url || ''
+        name: organisation.name || '',
+        slug: organisation.slug || '',
+        logo_url: organisation.logo_url || ''
       }))
     }
   }, [org, orgForm.name, orgForm.slug])
 
+  useEffect(() => {
+    if (!isOrganisationWorkspace && ['organisation', 'members'].includes(activeTab)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setActiveTab('profile')
+    }
+  }, [activeTab, isOrganisationWorkspace])
+
   // ── RBAC from workspace slice ──────────────────
-  const workspaceRole = activeWorkspace?.role || user?.org_role || 'member'
+  const workspaceRole = isOrganisationWorkspace ? (activeWorkspace?.role || user?.org_role || 'member') : 'owner'
   const isOwnerOrAdmin = workspaceRole === 'owner' || workspaceRole === 'admin'
   const members = membersResponse?.data?.results || membersResponse?.results || []
   const currentPlan = activeWorkspace?.plan || 'free'
@@ -151,13 +161,18 @@ export default function SettingsPage() {
     }
   }
 
-  const tabs = [
+  const personalTabs = [
     { id: 'profile', name: 'Profile', icon: UserIcon },
+    { id: 'security', name: 'Security', icon: Lock },
+    { id: 'integrations', name: 'Integrations', icon: LinkIcon },
+  ]
+
+  const orgTabs = isOrganisationWorkspace ? [
     { id: 'organisation', name: 'Workspace', icon: Building },
     { id: 'members', name: 'Team', icon: Users },
-    { id: 'security', name: 'Security', icon: Lock },
     { id: 'billing', name: 'Billing', icon: CreditCard },
-    { id: 'integrations', name: 'Integrations', icon: LinkIcon },
+  ] : [
+    { id: 'billing', name: 'Billing', icon: CreditCard },
   ]
 
   return (
@@ -168,28 +183,62 @@ export default function SettingsPage() {
         <div className="w-full lg:w-72 shrink-0">
           <div className="bg-brand-surface border border-brand-border rounded-[2.5rem] p-4 shadow-xl sticky top-8">
             <div className="p-6 mb-2">
-               <h2 className="text-sm font-black text-text-main uppercase tracking-[0.2em]">Control Center</h2>
-               <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest mt-1">Platform Management</p>
+               <h2 className="text-sm font-black text-text-main uppercase tracking-[0.2em]">Settings</h2>
+               <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest mt-1">
+                 {isOrganisationWorkspace ? activeWorkspace?.name || 'Organisation' : 'Personal workspace'}
+               </p>
             </div>
-            <div className="space-y-1">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`
-                    w-full flex items-center justify-between px-6 py-4 rounded-2xl transition-all group
-                    ${activeTab === tab.id 
-                      ? 'bg-blue-600 text-white shadow-xl shadow-blue-600/20' 
-                      : 'hover:bg-brand-highlight text-text-muted hover:text-text-main'}
-                  `}
-                >
-                  <div className="flex items-center gap-4">
-                    <tab.icon size={18} className={activeTab === tab.id ? 'text-white' : 'text-text-muted group-hover:text-blue-500 transition-colors'} />
-                    <span className="text-[10px] font-black uppercase tracking-widest">{tab.name}</span>
-                  </div>
-                  <ChevronRight size={14} className={activeTab === tab.id ? 'opacity-50' : 'opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all'} />
-                </button>
-              ))}
+
+            {/* Personal settings section */}
+            <div className="mb-2">
+              <p className="px-6 py-2 text-[9px] font-black text-text-muted/50 uppercase tracking-[0.2em]">Personal</p>
+              <div className="space-y-1">
+                {personalTabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`
+                      w-full flex items-center justify-between px-6 py-4 rounded-2xl transition-all group
+                      ${activeTab === tab.id 
+                        ? 'bg-blue-600 text-white shadow-xl shadow-blue-600/20' 
+                        : 'hover:bg-brand-highlight text-text-muted hover:text-text-main'}
+                    `}
+                  >
+                    <div className="flex items-center gap-4">
+                      <tab.icon size={18} className={activeTab === tab.id ? 'text-white' : 'text-text-muted group-hover:text-blue-500 transition-colors'} />
+                      <span className="text-[10px] font-black uppercase tracking-widest">{tab.name}</span>
+                    </div>
+                    <ChevronRight size={14} className={activeTab === tab.id ? 'opacity-50' : 'opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all'} />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Organisation / Billing section */}
+            <div>
+              <p className="px-6 py-2 text-[9px] font-black text-text-muted/50 uppercase tracking-[0.2em]">
+                {isOrganisationWorkspace ? 'Organisation' : 'Plan'}
+              </p>
+              <div className="space-y-1">
+                {orgTabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`
+                      w-full flex items-center justify-between px-6 py-4 rounded-2xl transition-all group
+                      ${activeTab === tab.id 
+                        ? 'bg-blue-600 text-white shadow-xl shadow-blue-600/20' 
+                        : 'hover:bg-brand-highlight text-text-muted hover:text-text-main'}
+                    `}
+                  >
+                    <div className="flex items-center gap-4">
+                      <tab.icon size={18} className={activeTab === tab.id ? 'text-white' : 'text-text-muted group-hover:text-blue-500 transition-colors'} />
+                      <span className="text-[10px] font-black uppercase tracking-widest">{tab.name}</span>
+                    </div>
+                    <ChevronRight size={14} className={activeTab === tab.id ? 'opacity-50' : 'opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all'} />
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>

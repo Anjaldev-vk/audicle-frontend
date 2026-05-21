@@ -31,6 +31,7 @@ import { format } from 'date-fns';
 import { toast } from 'react-hot-toast';
 import ChatSidebar from '../../rag/components/ChatSidebar';
 import StatusBadge from '../../../components/shared/StatusBadge';
+import Skeleton from '../../../components/shared/Skeleton';
 
 const MeetingDetailPage = () => {
   const { id } = useParams();
@@ -125,7 +126,7 @@ const MeetingDetailPage = () => {
     }
   };
 
-  const handleRenameSpeaker = async (segmentId, speakerId) => {
+  const handleRenameSpeaker = async (segmentId) => {
     if (!newSpeakerName.trim()) return;
     try {
       await updateSegment({
@@ -144,9 +145,101 @@ const MeetingDetailPage = () => {
   if (meetingLoading) {
     return (
       <AppLayout>
-        <div className="flex flex-col items-center justify-center py-40">
-          <Loader2 className="w-12 h-12 text-blue-500 animate-spin mb-6" />
-          <p className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] animate-pulse">Syncing neural transcriptions...</p>
+        {/* Header Skeleton */}
+        <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-10 mb-12">
+          <div className="space-y-6 flex-grow">
+            <div className="flex items-center gap-3">
+              <Skeleton className="w-4 h-4 rounded" />
+              <Skeleton className="w-32 h-4 rounded-lg" />
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <Skeleton className="w-72 h-10 rounded-2xl" />
+                <Skeleton className="w-24 h-6 rounded-full" />
+              </div>
+              <div className="flex flex-wrap items-center gap-4">
+                <Skeleton className="w-36 h-6 rounded-full" />
+                <Skeleton className="w-28 h-6 rounded-full" />
+                <Skeleton className="w-40 h-6 rounded-full" />
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-4 shrink-0">
+            <Skeleton className="w-36 h-12 rounded-xl" />
+            <Skeleton className="w-12 h-12 rounded-xl" />
+            <Skeleton className="w-12 h-12 rounded-xl" />
+          </div>
+        </div>
+
+        {/* Content Skeleton */}
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-10">
+          <div className="xl:col-span-2 space-y-10">
+            {/* Audio Bar Skeleton */}
+            <div className="bg-brand-surface border border-brand-border rounded-[2.5rem] p-8 shadow-2xl">
+              <div className="flex flex-col md:flex-row items-center gap-8">
+                <Skeleton className="w-16 h-16 rounded-2xl shrink-0" />
+                <div className="flex-1 space-y-4 w-full">
+                  <div className="flex justify-between">
+                    <Skeleton className="w-20 h-4 rounded-lg" />
+                    <Skeleton className="w-24 h-4 rounded-lg" />
+                  </div>
+                  <Skeleton className="w-full h-2 rounded-full" />
+                </div>
+                <Skeleton className="w-36 h-12 rounded-xl shrink-0" />
+              </div>
+            </div>
+
+            {/* Tab System & Tab Content Skeleton */}
+            <div className="space-y-8">
+              <div className="flex gap-3 p-1.5 bg-brand-surface border border-brand-border rounded-2xl w-fit">
+                <Skeleton className="w-36 h-10 rounded-xl" />
+                <Skeleton className="w-36 h-10 rounded-xl" />
+              </div>
+              <div className="bg-brand-surface border border-brand-border rounded-[2.5rem] p-10 shadow-2xl min-h-[500px] space-y-8">
+                <Skeleton className="w-48 h-6 rounded-lg" />
+                <Skeleton className="w-full h-24 rounded-2xl" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-6">
+                  <div className="space-y-4">
+                    <Skeleton className="w-32 h-6 rounded-lg" />
+                    <Skeleton className="w-full h-4 rounded-lg" />
+                    <Skeleton className="w-5/6 h-4 rounded-lg" />
+                    <Skeleton className="w-4/5 h-4 rounded-lg" />
+                  </div>
+                  <div className="space-y-4">
+                    <Skeleton className="w-32 h-6 rounded-lg" />
+                    <Skeleton className="w-full h-4 rounded-lg" />
+                    <Skeleton className="w-5/6 h-4 rounded-lg" />
+                    <Skeleton className="w-4/5 h-4 rounded-lg" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar Skeleton */}
+          <div className="xl:col-span-1 space-y-8">
+            <div className="bg-brand-surface border border-brand-border rounded-[2.5rem] p-8 shadow-2xl space-y-6">
+              <Skeleton className="w-48 h-6 rounded-lg" />
+              <Skeleton className="w-36 h-4 rounded-lg" />
+              <div className="p-6 bg-brand-highlight border border-brand-border rounded-[2rem] space-y-6">
+                <Skeleton className="w-16 h-16 rounded-2xl mx-auto" />
+                <Skeleton className="w-3/4 h-4 rounded-lg mx-auto" />
+                <Skeleton className="w-full h-12 rounded-2xl" />
+              </div>
+            </div>
+
+            <div className="bg-brand-surface border border-brand-border rounded-[2.5rem] p-8 shadow-xl space-y-6">
+              <Skeleton className="w-36 h-6 rounded-lg" />
+              <div className="space-y-4">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="flex justify-between items-center p-4 bg-brand-highlight border border-brand-border rounded-2xl">
+                    <Skeleton className="w-24 h-4 rounded-lg" />
+                    <Skeleton className="w-12 h-4 rounded-lg" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </AppLayout>
     );
@@ -174,7 +267,7 @@ const MeetingDetailPage = () => {
         <div className="space-y-6">
           <button onClick={() => navigate(-1)} className="flex items-center gap-3 text-text-muted hover:text-text-main transition-colors group">
             <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Return to Repository</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Return to Meetings</span>
           </button>
           <div className="space-y-4">
             <div className="flex items-center gap-4">
@@ -279,7 +372,7 @@ const MeetingDetailPage = () => {
             <div className="flex items-center gap-3 p-1.5 bg-brand-surface border border-brand-border rounded-2xl w-fit shadow-inner">
               {[
                 { id: 'summary', name: 'STRATEGIC SUMMARY', icon: FileText },
-                { id: 'transcript', name: 'NEURAL TRANSCRIPT', icon: MessageSquare }
+                { id: 'transcript', name: 'TRANSCRIPT', icon: MessageSquare }
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -299,9 +392,33 @@ const MeetingDetailPage = () => {
               {activeTab === 'summary' && (
                 <div className="animate-in fade-in duration-500 space-y-12">
                   {summaryLoading ? (
-                    <div className="flex flex-col items-center justify-center py-20 opacity-50">
-                      <Loader2 size={32} className="animate-spin mb-4 text-blue-500" />
-                      <span className="text-[10px] font-black text-text-main uppercase tracking-widest">Synthesizing intelligence...</span>
+                    <div className="space-y-12">
+                      <section className="space-y-4">
+                        <Skeleton className="w-48 h-6 rounded-lg" />
+                        <Skeleton className="w-full h-4 rounded-lg" />
+                        <Skeleton className="w-11/12 h-4 rounded-lg" />
+                        <Skeleton className="w-10/12 h-4 rounded-lg" />
+                      </section>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <section className="space-y-4">
+                          <Skeleton className="w-36 h-6 rounded-lg" />
+                          {[...Array(4)].map((_, i) => (
+                            <div key={i} className="flex gap-4">
+                              <Skeleton className="w-2 h-2 rounded-full mt-2 shrink-0" />
+                              <Skeleton className="w-full h-4 rounded-lg" />
+                            </div>
+                          ))}
+                        </section>
+                        <section className="space-y-4">
+                          <Skeleton className="w-36 h-6 rounded-lg" />
+                          {[...Array(4)].map((_, i) => (
+                            <div key={i} className="flex gap-4">
+                              <Skeleton className="w-2 h-2 rounded-full mt-2 shrink-0" />
+                              <Skeleton className="w-full h-4 rounded-lg" />
+                            </div>
+                          ))}
+                        </section>
+                      </div>
                     </div>
                   ) : (summary?.executive_summary || (summary?.key_points && summary.key_points.length > 0)) ? (
                     <>
@@ -349,7 +466,7 @@ const MeetingDetailPage = () => {
                       </div>
                       <h4 className="text-sm font-black text-text-main uppercase tracking-widest mb-2">Analysis Pending</h4>
                       <p className="text-[10px] font-bold text-text-muted uppercase tracking-[0.2em] max-w-xs leading-relaxed">
-                        Our neural engine is currently processing this meeting. The strategic summary will appear here shortly.
+                        Our AI engine is currently processing this meeting. The summary will appear here shortly.
                       </p>
                     </div>
                   )}
@@ -359,9 +476,17 @@ const MeetingDetailPage = () => {
               {activeTab === 'transcript' && (
                 <div className="animate-in fade-in duration-500 space-y-6">
                   {segmentsLoading ? (
-                    <div className="flex flex-col items-center justify-center py-20 opacity-50">
-                      <Loader2 size={32} className="animate-spin mb-4 text-blue-500" />
-                      <span className="text-[10px] font-black text-text-main uppercase tracking-widest">Indexing voice vectors...</span>
+                    <div className="space-y-6">
+                      {[...Array(5)].map((_, i) => (
+                        <div key={i} className="py-6 flex gap-8 -mx-4 px-4">
+                          <Skeleton className="w-20 h-6 rounded-lg shrink-0" />
+                          <div className="flex-1 space-y-3">
+                            <Skeleton className="w-24 h-4 rounded-lg" />
+                            <Skeleton className="w-full h-4 rounded-lg" />
+                            <Skeleton className="w-5/6 h-4 rounded-lg" />
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   ) : (segments && segments.length > 0) ? (
                     <div className="divide-y divide-brand-border/50">
@@ -467,7 +592,7 @@ const MeetingDetailPage = () => {
             <div className="space-y-4">
               {[
                 { label: 'Decision Velocity', value: 'High', color: 'text-emerald-500' },
-                { label: 'Neural Clarity', value: '84%', color: 'text-blue-500' },
+                { label: 'Audio Quality', value: '84%', color: 'text-blue-500' },
                 { label: 'Conflict Index', value: 'Minimal', color: 'text-amber-500' }
               ].map((stat, i) => (
                 <div key={i} className="flex items-center justify-between p-4 bg-brand-highlight border border-brand-border rounded-2xl">

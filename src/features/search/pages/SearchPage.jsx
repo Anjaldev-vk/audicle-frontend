@@ -5,6 +5,7 @@ import GlobalSearchBar from '../components/GlobalSearchBar';
 import { useSearchQuery } from '../api/searchApi';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
+import Skeleton from '../../../components/shared/Skeleton';
 
 const SearchPage = () => {
   const [query, setQuery] = useState('');
@@ -130,9 +131,27 @@ const SearchPage = () => {
           <p className="text-text-muted text-sm font-bold uppercase tracking-[0.3em]">Enter a query to start searching</p>
         </div>
       ) : isFetching && !results ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-6">
-          <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
-          <p className="text-gray-500 font-bold uppercase tracking-widest text-xs animate-pulse">Scanning your workspace...</p>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between border-b border-brand-border pb-6">
+            <Skeleton className="w-64 h-4 rounded-lg" />
+          </div>
+          <div className="grid grid-cols-1 gap-6">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="bg-brand-surface border border-brand-border p-8 rounded-3xl space-y-4">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="w-6 h-6 rounded-lg" />
+                  <Skeleton className="w-32 h-4 rounded-lg" />
+                  <span className="w-1 h-1 rounded-full bg-brand-border"></span>
+                  <Skeleton className="w-24 h-4 rounded-lg" />
+                </div>
+                <div className="space-y-2">
+                  <Skeleton className="w-full h-4 rounded-lg" />
+                  <Skeleton className="w-5/6 h-4 rounded-lg" />
+                  <Skeleton className="w-4/5 h-4 rounded-lg" />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       ) : hasResults ? (
         <div className="space-y-12 animate-in fade-in duration-500">

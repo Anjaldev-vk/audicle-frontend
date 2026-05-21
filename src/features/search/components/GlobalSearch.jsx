@@ -91,7 +91,7 @@ const GlobalSearch = () => {
       {isOpen && query.length >= 2 && (
         <div className="absolute top-full left-0 right-0 mt-3 bg-brand-surface border border-brand-border rounded-3xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
           <div className="p-4 bg-brand-highlight/30 border-b border-brand-border flex items-center justify-between">
-            <span className="text-[10px] font-black text-text-muted uppercase tracking-widest">Neural Search Results</span>
+            <span className="text-[10px] font-black text-text-muted uppercase tracking-widest">Search Results</span>
             <span className="text-[10px] font-bold text-blue-500 uppercase tracking-widest">{results.length} found</span>
           </div>
 

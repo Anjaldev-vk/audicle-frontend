@@ -1,7 +1,20 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Sparkles } from 'lucide-react';
 
 export default function SplashScreen() {
+  const bars = useMemo(
+    () => [
+      { delay: 0.1, height: 35 },
+      { delay: 0.3, height: 70 },
+      { delay: 0.5, height: 95 },
+      { delay: 0.2, height: 55 },
+      { delay: 0.4, height: 82 },
+      { delay: 0.6, height: 64 },
+      { delay: 0.1, height: 42 },
+    ],
+    []
+  );
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-brand-bg overflow-hidden font-sans transition-colors duration-700">
       {/* Dynamic Background Elements */}
@@ -22,13 +35,13 @@ export default function SplashScreen() {
             
             {/* Visual Equalizer / Sound Wave Animation */}
             <div className="flex items-end justify-center gap-1.5 h-12 z-10">
-              {[0.1, 0.3, 0.5, 0.2, 0.4, 0.6, 0.1].map((delay, i) => (
+              {bars.map((bar, i) => (
                 <div 
                   key={i}
                   className="w-1.5 bg-brand-primary rounded-full animate-[wave_1.2s_ease-in-out_infinite]"
                   style={{ 
-                    height: `${20 + Math.random() * 80}%`,
-                    animationDelay: `${delay}s` 
+                    height: `${bar.height}%`,
+                    animationDelay: `${bar.delay}s` 
                   }}
                 ></div>
               ))}
@@ -60,7 +73,7 @@ export default function SplashScreen() {
           </div>
           <div className="flex items-center gap-2 text-[9px] font-black text-text-muted uppercase tracking-[0.2em]">
             <Sparkles className="w-3 h-3 text-brand-primary animate-pulse" />
-            Synchronizing Neural Nodes
+            Loading your workspace
           </div>
         </div>
       </div>

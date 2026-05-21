@@ -6,7 +6,6 @@ import {
   Clock,
   CheckCircle,
   MessageSquare,
-  Loader2,
   LayoutDashboard,
   Layers,
   ArrowUpRight,
@@ -17,10 +16,12 @@ import {
   useGetAnalyticsOverviewQuery,
   useGetMeetingsChartQuery,
   useGetActivityChartQuery,
-  useGetTeamOverviewQuery
+  useGetTeamOverviewQuery,
+  useGetTeamMembersQuery
 } from '../api/analyticsApi';
 import { useSelector } from 'react-redux';
 import { selectUser } from '../../auth/slices/authSlice';
+import Skeleton from '../../../components/shared/Skeleton';
 import {
   BarChart,
   Bar,
@@ -80,6 +81,88 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
+const AnalyticsSkeleton = () => {
+  return (
+    <AppLayout>
+      {/* Header Skeleton */}
+      <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-8 mb-12">
+        <div className="space-y-3">
+          <Skeleton className="w-64 h-10" />
+          <Skeleton className="w-80 h-4" />
+        </div>
+        <div className="flex flex-wrap items-center gap-6">
+          <Skeleton className="w-64 h-12 rounded-2xl" />
+          <Skeleton className="w-40 h-12 rounded-2xl" />
+        </div>
+      </div>
+
+      {/* Stats Grid Skeleton */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 mb-10">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="bg-brand-surface border border-brand-border p-8 rounded-[2.5rem] shadow-xl relative overflow-hidden space-y-8">
+            <div className="flex justify-between items-center">
+              <Skeleton className="w-14 h-14 rounded-2xl" />
+              <Skeleton className="w-16 h-6 rounded-full" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="w-24 h-10" />
+              <Skeleton className="w-36 h-3" />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Charts Grid Skeleton */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-10">
+        {/* Main Chart Skeleton */}
+        <div className="xl:col-span-2 bg-brand-surface border border-brand-border rounded-[2.5rem] p-10 shadow-2xl space-y-8">
+          <div className="flex justify-between items-center">
+            <div className="space-y-2">
+              <Skeleton className="w-40 h-6" />
+              <Skeleton className="w-48 h-3" />
+            </div>
+            <Skeleton className="w-20 h-6 rounded-full" />
+          </div>
+          <div className="h-[400px] w-full flex items-end gap-2 pt-10">
+            {[...Array(12)].map((_, i) => (
+              <Skeleton 
+                key={i} 
+                className="flex-1 rounded-t-lg" 
+                style={{ height: `${((i * 17) % 60) + 20}%` }} 
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Quota Distribution Skeleton */}
+        <div className="xl:col-span-1 bg-brand-surface border border-brand-border rounded-[2.5rem] p-10 shadow-2xl flex flex-col justify-between">
+          <div>
+            <Skeleton className="w-40 h-6 mb-2" />
+            <Skeleton className="w-48 h-3 mb-10" />
+          </div>
+          <div className="space-y-8 flex-1 flex flex-col justify-center">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="space-y-3">
+                <div className="flex justify-between">
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="w-8 h-8 rounded-xl" />
+                    <Skeleton className="w-20 h-3" />
+                  </div>
+                  <Skeleton className="w-16 h-4" />
+                </div>
+                <Skeleton className="w-full h-2 rounded-full" />
+              </div>
+            ))}
+          </div>
+          <div className="mt-10">
+            <Skeleton className="w-full h-20 rounded-[2rem]" />
+          </div>
+        </div>
+      </div>
+    </AppLayout>
+  );
+};
+
 const AnalyticsPage = () => {
   const [period, setPeriod] = useState('30d');
   const [activeTab, setActiveTab] = useState('overview');
@@ -87,9 +170,10 @@ const AnalyticsPage = () => {
   const isAdmin = user?.org_role === 'owner' || user?.org_role === 'admin';
 
   const { data: overviewRes, isLoading: overviewLoading } = useGetAnalyticsOverviewQuery({ period });
-  const { data: meetingsRes, isLoading: meetingsLoading, error: meetingsError } = useGetMeetingsChartQuery({ period });
+  const { data: meetingsRes, isLoading: meetingsLoading } = useGetMeetingsChartQuery({ period });
   const { data: activityRes } = useGetActivityChartQuery({ period });
   const { data: teamRes } = useGetTeamOverviewQuery({ period }, { skip: !isAdmin });
+  const { data: teamMembersRes } = useGetTeamMembersQuery({ period }, { skip: !isAdmin });
 
   const stats = overviewRes?.data || {};
   
@@ -104,17 +188,44 @@ const AnalyticsPage = () => {
     count: item.count ?? item.sessions ?? item.total ?? 0
   }));
 
-  const rawActivity = Array.isArray(activityRes?.data)
-    ? activityRes.data
-    : (activityRes?.data?.chart || activityRes?.data?.results || []);
+  // Parse and aggregate event types to get a daily activity score
+  const activityMap = activityRes?.data?.activity || {};
+  const datesSet = new Set();
+  Object.values(activityMap).forEach(dayCounts => {
+    if (dayCounts && typeof dayCounts === 'object') {
+      Object.keys(dayCounts).forEach(d => datesSet.add(d));
+    }
+  });
 
-  const activityData = rawActivity.map(item => ({
-    ...item,
-    date: item.date || item.day || item.timestamp,
-    activity_score: item.activity_score ?? item.score ?? item.value ?? 0
-  }));
+  let activityDates = Array.from(datesSet).sort();
+  if (activityDates.length === 0) {
+    const days = period === '7d' ? 7 : period === '90d' ? 90 : 30;
+    for (let i = 0; i < days; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() - (days - i - 1));
+      const dateStr = d.toISOString().split('T')[0];
+      activityDates.push(dateStr);
+    }
+  }
+
+  const activityData = activityDates.map(dateStr => {
+    let score = 0;
+    Object.keys(activityMap).forEach(eventType => {
+      score += activityMap[eventType]?.[dateStr] || 0;
+    });
+    return {
+      date: dateStr,
+      activity_score: score
+    };
+  });
     
   const teamStats = teamRes?.data || {};
+
+  // Map member statistics for the engagement chart
+  const memberActivity = (teamMembersRes?.data?.members || []).map(m => ({
+    ...m,
+    meetings: m.meetings_completed ?? m.meetings ?? 0
+  }));
 
 
   // Map backend keys to frontend expectations
@@ -141,14 +252,7 @@ const AnalyticsPage = () => {
   };
 
   if (overviewLoading || meetingsLoading) {
-    return (
-      <AppLayout>
-        <div className="flex flex-col items-center justify-center py-40">
-          <Loader2 className="w-12 h-12 text-blue-500 animate-spin mb-6" />
-          <p className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] animate-pulse">Processing intelligence data...</p>
-        </div>
-      </AppLayout>
-    );
+    return <AnalyticsSkeleton />;
   }
 
   return (
@@ -225,7 +329,7 @@ const AnalyticsPage = () => {
                 color="text-indigo-500"
               />
               <StatCard
-                title="AI Neural Queries"
+                title="AI Queries"
                 value={metrics.queries}
                 trend={24}
                 icon={MessageSquare}
@@ -351,21 +455,21 @@ const AnalyticsPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <StatCard
                 title="Active Collaborators"
-                value={teamStats.active_members || 0}
+                value={Object.keys(teamStats.members_activity || {}).length || teamStats.total_members || 0}
                 trend={2.4}
                 icon={Users}
                 color="text-indigo-500"
               />
               <StatCard
                 title="Team Velocity"
-                value={teamStats.total_meetings || 0}
+                value={teamStats.meetings_completed || 0}
                 trend={15.8}
                 icon={Video}
                 color="text-blue-500"
               />
               <StatCard
                 title="Action Efficiency"
-                value={`${teamStats.avg_completion_rate || 0}%`}
+                value={`${teamStats.action_completion_rate || 0}%`}
                 trend={8.1}
                 icon={CheckCircle}
                 color="text-emerald-500"
@@ -377,9 +481,9 @@ const AnalyticsPage = () => {
               <div className="bg-brand-surface border border-brand-border rounded-[2.5rem] p-10 shadow-2xl">
                 <h3 className="text-xl font-black text-text-main tracking-tight mb-10">Individual Engagement</h3>
                 <div className="h-[400px] w-full min-h-[400px] relative">
-                  {(teamStats.member_activity && teamStats.member_activity.length > 0) ? (
+                  {(memberActivity && memberActivity.length > 0) ? (
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={teamStats.member_activity} layout="vertical" margin={{ left: 40 }}>
+                      <BarChart data={memberActivity} layout="vertical" margin={{ left: 40 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.grid} horizontal={true} vertical={false} />
                         <XAxis type="number" hide />
                         <YAxis
