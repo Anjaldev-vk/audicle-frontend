@@ -27,12 +27,14 @@ const MfaSetupModal = ({ isOpen, onClose }) => {
   const handleVerify = async (e) => {
     e.preventDefault();
     try {
-      await verifyMfa({ code }).unwrap();
+      // Send code as token and totp_code to match DRF expectation
+      await verifyMfa({ code, token: code, totp_code: code }).unwrap();
       toast.success('MFA enabled successfully');
       onClose();
     } catch (err) {
       console.error(err);
-      toast.error(err?.data?.message || 'Verification failed');
+      const errMsg = err?.data?.message || err?.data?.token?.[0] || err?.data?.totp_code?.[0] || err?.data?.detail || 'Verification failed';
+      toast.error(errMsg);
     }
   };
 
