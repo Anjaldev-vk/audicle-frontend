@@ -92,7 +92,7 @@ const UploadPage = () => {
 
         toast.loading('Uploading file to cloud...', { id: toastId });
         await axios.put(url, file, {
-          headers: { 'Content-Type': file.type }
+          headers: { 'Content-Type': mimeType }
         });
 
         toast.loading('Finalising...', { id: toastId });
