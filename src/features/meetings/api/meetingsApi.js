@@ -133,7 +133,7 @@ export const meetingApi = baseApi.injectEndpoints({
       query: ({ id, language }) => ({
         url: `meetings/${id}/summary/translate/`,
         method: 'POST',
-        body: { language },
+        body: { target_language: language },
       }),
       invalidatesTags: (result, error, { id }) => [{ type: 'Summary', id }],
     }),

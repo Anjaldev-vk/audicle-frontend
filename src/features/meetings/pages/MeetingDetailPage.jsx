@@ -16,7 +16,8 @@ import {
   Play,
   Pause,
   Bot,
-  Pencil
+  Pencil,
+  Globe
 } from 'lucide-react';
 import {
   useGetMeetingQuery,
@@ -24,7 +25,8 @@ import {
   useGetMeetingSummaryQuery,
   useDeleteMeetingMutation,
   useDispatchBotMutation,
-  useUpdateTranscriptSegmentMutation
+  useUpdateTranscriptSegmentMutation,
+  useTranslateSummaryMutation
 } from '../api/meetingsApi';
 import AppLayout from '../../../components/layout/AppLayout';
 import { format } from 'date-fns';
@@ -32,6 +34,7 @@ import { toast } from 'react-hot-toast';
 import ChatSidebar from '../../rag/components/ChatSidebar';
 import StatusBadge from '../../../components/shared/StatusBadge';
 import Skeleton from '../../../components/shared/Skeleton';
+import ConfirmModal from '../../../components/shared/ConfirmModal';
 
 const MeetingDetailPage = () => {
   const { id } = useParams();
@@ -62,9 +65,12 @@ const MeetingDetailPage = () => {
   const [deleteMeeting, { isLoading: isDeleting }] = useDeleteMeetingMutation();
   const [dispatchBot, { isLoading: isDispatching }] = useDispatchBotMutation();
   const [updateSegment] = useUpdateTranscriptSegmentMutation();
+  const [translateSummary, { isLoading: isTranslating }] = useTranslateSummaryMutation();
 
   const [editingSpeakerId, setEditingSpeakerId] = useState(null);
   const [newSpeakerName, setNewSpeakerName] = useState('');
+  const [selectedLanguage, setSelectedLanguage] = useState('English');
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const meeting = meetingRes?.data || meetingRes;
   const segments = segmentsRes?.data?.results || segmentsRes?.data?.segments || (Array.isArray(segmentsRes?.data) ? segmentsRes.data : (Array.isArray(segmentsRes) ? segmentsRes : []));
@@ -105,7 +111,6 @@ const MeetingDetailPage = () => {
   };
 
   const handleDelete = async () => {
-    if (!window.confirm('Are you sure you want to delete this intelligence record?')) return;
     try {
       await deleteMeeting(id).unwrap();
       toast.success('Record deleted');
@@ -141,6 +146,28 @@ const MeetingDetailPage = () => {
       toast.error('Failed to update speaker');
     }
   };
+
+  const handleTranslate = async (language) => {
+    setSelectedLanguage(language);
+    if (language === 'English') return;
+    if (summary?.translations?.[language]) return;
+    
+    try {
+      await translateSummary({ id, language }).unwrap();
+      toast.success(`Translated to ${language}`);
+    } catch (err) {
+      console.error(err);
+      toast.error(`Failed to translate to ${language}`);
+      setSelectedLanguage('English');
+    }
+  };
+
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    toast.success('Meeting link copied to clipboard');
+  };
+
+  const currentSummary = selectedLanguage === 'English' ? summary : (summary?.translations?.[selectedLanguage] || summary);
 
   if (meetingLoading) {
     return (
@@ -306,11 +333,9 @@ const MeetingDetailPage = () => {
               Dispatch Bot
             </button>
           )}
-          <button className="p-3.5 bg-brand-surface border border-brand-border rounded-xl text-text-muted hover:text-text-main transition-all hover:border-white/10 shadow-lg">
-            <Share2 size={18} />
-          </button>
+
           <button
-            onClick={handleDelete}
+            onClick={() => setIsDeleteModalOpen(true)}
             disabled={isDeleting}
             className="p-3.5 bg-brand-surface border border-brand-border rounded-xl text-text-muted hover:text-red-500 transition-all hover:border-red-500/30 shadow-lg"
           >
@@ -369,23 +394,53 @@ const MeetingDetailPage = () => {
 
           {/* Tab System */}
           <div className="space-y-8">
-            <div className="flex items-center gap-3 p-1.5 bg-brand-surface border border-brand-border rounded-2xl w-fit shadow-inner">
-              {[
-                { id: 'summary', name: 'STRATEGIC SUMMARY', icon: FileText },
-                { id: 'transcript', name: 'TRANSCRIPT', icon: MessageSquare }
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`
-                        flex items-center gap-3 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all
-                        ${activeTab === tab.id ? 'bg-blue-600 text-white shadow-xl shadow-blue-600/20' : 'text-text-muted hover:text-text-main'}
-                      `}
-                >
-                  <tab.icon size={14} />
-                  {tab.name}
-                </button>
-              ))}
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-3 p-1.5 bg-brand-surface border border-brand-border rounded-2xl w-fit shadow-inner">
+                {[
+                  { id: 'summary', name: 'STRATEGIC SUMMARY', icon: FileText },
+                  { id: 'transcript', name: 'TRANSCRIPT', icon: MessageSquare }
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`
+                          flex items-center gap-3 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all
+                          ${activeTab === tab.id ? 'bg-blue-600 text-white shadow-xl shadow-blue-600/20' : 'text-text-muted hover:text-text-main'}
+                        `}
+                  >
+                    <tab.icon size={14} />
+                    {tab.name}
+                  </button>
+                ))}
+              </div>
+
+              {activeTab === 'summary' && !summaryLoading && (
+                <div className="flex items-center gap-3 animate-in fade-in">
+                  <Globe className={`w-4 h-4 ${isTranslating ? 'text-blue-500 animate-pulse' : 'text-text-muted'}`} />
+                  <div className="relative flex items-center">
+                    <select
+                      value={selectedLanguage}
+                      onChange={(e) => handleTranslate(e.target.value)}
+                      disabled={isTranslating}
+                      className="appearance-none bg-brand-surface border border-brand-border rounded-xl pl-4 pr-10 py-2 text-[10px] font-black uppercase tracking-widest text-text-muted focus:outline-none focus:border-blue-500 transition-colors disabled:opacity-50 cursor-pointer"
+                    >
+                      <option value="English">English</option>
+                      <option value="Spanish">Spanish</option>
+                      <option value="French">French</option>
+                      <option value="German">German</option>
+                      <option value="Malayalam">Malayalam</option>
+                      <option value="Hindi">Hindi</option>
+                      <option value="Arabic">Arabic</option>
+                      <option value="Japanese">Japanese</option>
+                    </select>
+                    <div className="absolute right-3 pointer-events-none text-text-muted">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="m6 9 6 6 6-6"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="bg-brand-surface border border-brand-border rounded-3xl lg:rounded-[2.5rem] p-5 lg:p-10 shadow-xl lg:shadow-2xl min-h-[300px] lg:min-h-[500px]">
@@ -420,13 +475,13 @@ const MeetingDetailPage = () => {
                         </section>
                       </div>
                     </div>
-                  ) : (summary?.executive_summary || (summary?.key_points && summary.key_points.length > 0)) ? (
+                  ) : (currentSummary?.executive_summary || currentSummary?.summary || (currentSummary?.key_points && currentSummary.key_points.length > 0)) ? (
                     <>
                       <section>
                         <h3 className="text-xs font-black text-blue-500 uppercase tracking-[0.3em] mb-6 flex items-center gap-3">
                           <div className="w-8 h-1 bg-blue-500 rounded-full"></div> Executive Narrative
                         </h3>
-                        <p className="text-lg font-bold text-text-main leading-relaxed tracking-tight">{summary.executive_summary}</p>
+                        <p className="text-lg font-medium text-text-main leading-relaxed">{currentSummary.executive_summary || currentSummary.summary}</p>
                       </section>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
@@ -435,7 +490,7 @@ const MeetingDetailPage = () => {
                             <div className="w-8 h-1 bg-emerald-500 rounded-full"></div> Key Objectives
                           </h3>
                           <ul className="space-y-4">
-                            {summary.key_points?.map((point, i) => (
+                            {currentSummary.key_points?.map((point, i) => (
                               <li key={i} className="flex gap-4 group">
                                 <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 group-hover:scale-150 transition-transform"></div>
                                 <span className="text-sm font-medium text-text-muted leading-relaxed group-hover:text-text-main transition-colors">{point}</span>
@@ -449,7 +504,7 @@ const MeetingDetailPage = () => {
                             <div className="w-8 h-1 bg-amber-500 rounded-full"></div> Strategic Next Steps
                           </h3>
                           <ul className="space-y-4">
-                            {summary.next_steps?.map((step, i) => (
+                            {currentSummary.next_steps?.map((step, i) => (
                               <li key={i} className="flex gap-4 group">
                                 <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0 group-hover:scale-150 transition-transform"></div>
                                 <span className="text-sm font-medium text-text-muted leading-relaxed group-hover:text-text-main transition-colors">{step}</span>
@@ -611,6 +666,16 @@ const MeetingDetailPage = () => {
         onClose={() => setIsChatOpen(false)}
         meetingId={id}
         meetingTitle={meeting?.title || ''}
+      />
+
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDelete}
+        title="Delete Intelligence Record"
+        message="Are you sure you want to permanently delete this intelligence record? All analysis, transcripts, and summaries will be irrevocably destroyed."
+        confirmText="Delete Record"
+        type="danger"
       />
     </AppLayout>
   );
