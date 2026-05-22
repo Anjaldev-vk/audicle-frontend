@@ -133,7 +133,25 @@ export default function SettingsPage() {
       setIsMfaDisableOpen(false)
     } catch (err) {
       console.error('Disable MFA Error:', err)
-      const errMsg = err?.data?.message || err?.data?.detail || 'Failed to disable MFA'
+      let errMsg = 'Failed to disable MFA';
+      if (err?.data) {
+        if (typeof err.data === 'string') {
+          errMsg = err.data;
+        } else {
+          const fieldErrorKey = Object.keys(err.data).find(k => Array.isArray(err.data[k]) && err.data[k].length > 0);
+          if (fieldErrorKey) {
+            errMsg = `${fieldErrorKey}: ${err.data[fieldErrorKey][0]}`;
+          } else if (err.data.non_field_errors) {
+            errMsg = err.data.non_field_errors[0];
+          } else if (err.data.detail) {
+            errMsg = err.data.detail;
+          } else if (err.data.message && err.data.message !== 'A validation error occurred.') {
+            errMsg = err.data.message;
+          } else {
+            errMsg = JSON.stringify(err.data);
+          }
+        }
+      }
       toast.error(errMsg)
     }
   }
