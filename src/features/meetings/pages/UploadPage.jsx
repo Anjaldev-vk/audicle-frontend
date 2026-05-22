@@ -119,7 +119,14 @@ const UploadPage = () => {
       navigate(`/dashboard/meetings/${meetingId}`);
     } catch (error) {
       console.error('API Error:', error);
-      const errorMessage = error?.data?.message || error?.data?.detail || (error?.data && typeof error.data === 'object' ? JSON.stringify(error.data) : null) || 'Failed to create meeting';
+      let errorMessage = 'Failed to create meeting';
+      if (error?.response?.data) {
+        errorMessage = typeof error.response.data === 'string' ? error.response.data : JSON.stringify(error.response.data);
+      } else if (error?.data) {
+        errorMessage = error.data.message || error.data.detail || (typeof error.data === 'object' ? JSON.stringify(error.data) : null) || 'Failed to create meeting';
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
       toast.error(errorMessage, { id: toastId });
     } finally {
       setLoading(false);
