@@ -73,9 +73,10 @@ export const accountsApi = baseApi.injectEndpoints({
       invalidatesTags: ['User'],
     }),
     disableMfa: builder.mutation({
-      query: () => ({
+      query: (data) => ({
         url: 'accounts/mfa/disable/',
         method: 'POST',
+        body: data,
       }),
       invalidatesTags: ['User'],
     }),

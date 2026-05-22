@@ -38,9 +38,9 @@ import ConfirmModal from '../../../components/shared/ConfirmModal'
 import UpgradeModal from '../../../components/shared/UpgradeModal'
 import ChangePasswordModal from '../../auth/components/ChangePasswordModal'
 import MfaSetupModal from '../components/MfaSetupModal'
+import MfaDisableModal from '../components/MfaDisableModal'
 import { useDispatch } from 'react-redux'
 import { checkSession } from '../../auth/slices/authSlice'
-
 export default function SettingsPage() {
   const dispatch = useDispatch()
   const user = useSelector(selectUser)
@@ -601,12 +601,9 @@ export default function SettingsPage() {
         onClose={() => setIsMfaSetupOpen(false)} 
       />
 
-      <ConfirmModal
+      <MfaDisableModal
         isOpen={isMfaDisableOpen}
         onClose={() => setIsMfaDisableOpen(false)}
-        onConfirm={handleDisableMfa}
-        title="Disable MFA"
-        message="Are you sure you want to disable Multi-Factor Authentication? Your account will be less secure."
       />
 
       <UpgradeModal
