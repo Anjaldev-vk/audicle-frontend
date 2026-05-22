@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { checkSession } from '../../auth/slices/authSlice';
 import { Shield, Smartphone, ArrowRight, Check, Loader2, X } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useEnableMfaMutation, useVerifyMfaSetupMutation } from '../api/accountsApi';
 
 const MfaSetupModal = ({ isOpen, onClose }) => {
+  const dispatch = useDispatch();
   const [step, setStep] = useState(1);
   const [qrData, setQrData] = useState(null);
   const [code, setCode] = useState('');
@@ -20,7 +23,8 @@ const MfaSetupModal = ({ isOpen, onClose }) => {
       setStep(2);
     } catch (err) {
       console.error(err);
-      toast.error('Failed to start MFA setup');
+      const errMsg = err?.data?.message || err?.data?.detail || 'Failed to start MFA setup';
+      toast.error(errMsg);
     }
   };
 
@@ -30,6 +34,7 @@ const MfaSetupModal = ({ isOpen, onClose }) => {
       // Send code as token and totp_code to match DRF expectation
       await verifyMfa({ code, token: code, totp_code: code }).unwrap();
       toast.success('MFA enabled successfully');
+      await dispatch(checkSession());
       onClose();
     } catch (err) {
       console.error(err);

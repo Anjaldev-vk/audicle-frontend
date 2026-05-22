@@ -39,7 +39,7 @@ import UpgradeModal from '../../../components/shared/UpgradeModal'
 import ChangePasswordModal from '../../auth/components/ChangePasswordModal'
 import MfaSetupModal from '../components/MfaSetupModal'
 
-export default function SettingsPage() {
+  const dispatch = useDispatch()
   const user = useSelector(selectUser)
   const activeWorkspace = useSelector(selectActiveWorkspace)
   const [activeTab, setActiveTab] = useState('profile')
@@ -126,6 +126,7 @@ export default function SettingsPage() {
     try {
       await disableMfa().unwrap()
       toast.success('MFA disabled')
+      await dispatch(checkSession())
       setIsMfaDisableOpen(false)
     } catch {
       toast.error('Failed to disable MFA')
