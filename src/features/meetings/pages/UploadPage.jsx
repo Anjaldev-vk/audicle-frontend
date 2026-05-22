@@ -74,10 +74,18 @@ const UploadPage = () => {
 
       if (activeTab === 'upload' && file) {
         toast.loading('Requesting upload permission...', { id: toastId });
+        
+        let mimeType = file.type;
+        if (!mimeType) {
+          if (file.name.toLowerCase().endsWith('.m4a')) mimeType = 'audio/mp4';
+          else if (file.name.toLowerCase().endsWith('.wav')) mimeType = 'audio/wav';
+          else mimeType = 'audio/mpeg';
+        }
+
         const uploadRequest = await requestUploadUrl({
           meetingId,
           fileName: file.name,
-          contentType: file.type
+          contentType: mimeType
         }).unwrap();
         
         const { url, key } = uploadRequest.data;
@@ -110,7 +118,9 @@ const UploadPage = () => {
 
       navigate(`/dashboard/meetings/${meetingId}`);
     } catch (error) {
-      toast.error(error?.data?.message || 'Failed to create meeting', { id: toastId });
+      console.error('API Error:', error);
+      const errorMessage = error?.data?.message || error?.data?.detail || (error?.data && typeof error.data === 'object' ? JSON.stringify(error.data) : null) || 'Failed to create meeting';
+      toast.error(errorMessage, { id: toastId });
     } finally {
       setLoading(false);
     }
