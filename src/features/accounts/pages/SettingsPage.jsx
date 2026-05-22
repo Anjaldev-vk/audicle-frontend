@@ -38,7 +38,10 @@ import ConfirmModal from '../../../components/shared/ConfirmModal'
 import UpgradeModal from '../../../components/shared/UpgradeModal'
 import ChangePasswordModal from '../../auth/components/ChangePasswordModal'
 import MfaSetupModal from '../components/MfaSetupModal'
+import { useDispatch } from 'react-redux'
+import { checkSession } from '../../auth/slices/authSlice'
 
+export default function SettingsPage() {
   const dispatch = useDispatch()
   const user = useSelector(selectUser)
   const activeWorkspace = useSelector(selectActiveWorkspace)
