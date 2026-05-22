@@ -175,7 +175,7 @@ const MeetingDetailPage = () => {
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-10">
           <div className="xl:col-span-2 space-y-10">
             {/* Audio Bar Skeleton */}
-            <div className="bg-brand-surface border border-brand-border rounded-[2.5rem] p-8 shadow-2xl">
+            <div className="bg-brand-surface border border-brand-border rounded-2xl lg:rounded-[2.5rem] p-5 lg:p-8 shadow-xl lg:shadow-2xl">
               <div className="flex flex-col md:flex-row items-center gap-8">
                 <Skeleton className="w-16 h-16 rounded-2xl shrink-0" />
                 <div className="flex-1 space-y-4 w-full">
@@ -195,7 +195,7 @@ const MeetingDetailPage = () => {
                 <Skeleton className="w-36 h-10 rounded-xl" />
                 <Skeleton className="w-36 h-10 rounded-xl" />
               </div>
-              <div className="bg-brand-surface border border-brand-border rounded-[2.5rem] p-10 shadow-2xl min-h-[500px] space-y-8">
+              <div className="bg-brand-surface border border-brand-border rounded-2xl lg:rounded-[2.5rem] p-5 lg:p-10 shadow-xl lg:shadow-2xl min-h-[300px] lg:min-h-[500px] space-y-8">
                 <Skeleton className="w-48 h-6 rounded-lg" />
                 <Skeleton className="w-full h-24 rounded-2xl" />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-6">
@@ -218,7 +218,7 @@ const MeetingDetailPage = () => {
 
           {/* Sidebar Skeleton */}
           <div className="xl:col-span-1 space-y-8">
-            <div className="bg-brand-surface border border-brand-border rounded-[2.5rem] p-8 shadow-2xl space-y-6">
+            <div className="bg-brand-surface border border-brand-border rounded-2xl lg:rounded-[2.5rem] p-6 lg:p-8 shadow-xl lg:shadow-2xl space-y-6">
               <Skeleton className="w-48 h-6 rounded-lg" />
               <Skeleton className="w-36 h-4 rounded-lg" />
               <div className="p-6 bg-brand-highlight border border-brand-border rounded-[2rem] space-y-6">
@@ -228,7 +228,7 @@ const MeetingDetailPage = () => {
               </div>
             </div>
 
-            <div className="bg-brand-surface border border-brand-border rounded-[2.5rem] p-8 shadow-xl space-y-6">
+            <div className="bg-brand-surface border border-brand-border rounded-2xl lg:rounded-[2.5rem] p-6 lg:p-8 shadow-xl space-y-6">
               <Skeleton className="w-36 h-6 rounded-lg" />
               <div className="space-y-4">
                 {[...Array(3)].map((_, i) => (
@@ -248,7 +248,7 @@ const MeetingDetailPage = () => {
   if (meetingError || !meeting || id === 'undefined') {
     return (
       <AppLayout>
-        <div className="text-center py-20 px-8 bg-brand-surface border border-brand-border rounded-[2.5rem]">
+        <div className="text-center py-16 lg:py-20 px-6 lg:px-8 bg-brand-surface border border-brand-border rounded-3xl lg:rounded-[2.5rem]">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-6" />
           <h2 className="text-2xl font-black text-text-main mb-3">Node Connection Failed</h2>
           <p className="text-text-muted mb-8 uppercase tracking-widest text-[10px] font-bold">This intelligence record could not be retrieved from the registry (Invalid ID).</p>
@@ -263,15 +263,15 @@ const MeetingDetailPage = () => {
   return (
     <AppLayout>
       {/* Header Section */}
-      <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-10 mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
-        <div className="space-y-6">
+      <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-6 lg:gap-10 mb-8 lg:mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
+        <div className="space-y-4 lg:space-y-6">
           <button onClick={() => navigate(-1)} className="flex items-center gap-3 text-text-muted hover:text-text-main transition-colors group">
             <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
             <span className="text-[10px] font-black uppercase tracking-[0.2em]">Return to Meetings</span>
           </button>
           <div className="space-y-4">
             <div className="flex items-center gap-4">
-              <h1 className="text-4xl font-black text-text-main tracking-tighter leading-none">{meeting.title}</h1>
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-text-main tracking-tighter leading-none break-all sm:break-normal">{meeting.title}</h1>
               <StatusBadge status={meeting.status} />
             </div>
             <div className="flex flex-wrap items-center gap-4 text-[10px] font-bold text-text-muted uppercase tracking-widest">
@@ -295,7 +295,7 @@ const MeetingDetailPage = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-3 lg:gap-4">
           {meeting.status === 'scheduled' && (
             <button
               onClick={handleDispatchBot}
@@ -325,7 +325,7 @@ const MeetingDetailPage = () => {
         <div className="xl:col-span-2 space-y-10">
           {/* Audio Analysis Bar */}
           {meeting.audio_url && (
-            <div className="bg-brand-surface border border-brand-border rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden group">
+            <div className="bg-brand-surface border border-brand-border rounded-3xl lg:rounded-[2.5rem] p-5 lg:p-8 shadow-xl lg:shadow-2xl relative overflow-hidden group">
               <div className="absolute inset-0 bg-blue-600/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
                 <button
@@ -360,7 +360,7 @@ const MeetingDetailPage = () => {
                   className="hidden"
                 />
 
-                <button className="px-6 py-3 bg-brand-highlight border border-brand-border rounded-xl text-[10px] font-black uppercase tracking-widest text-text-main flex items-center gap-3 transition-all hover:bg-brand-bg">
+                <button className="w-full sm:w-auto justify-center px-6 py-3 bg-brand-highlight border border-brand-border rounded-xl text-[10px] font-black uppercase tracking-widest text-text-main flex items-center gap-3 transition-all hover:bg-brand-bg mt-4 md:mt-0">
                   <Download size={14} /> Download Audio
                 </button>
               </div>
@@ -388,7 +388,7 @@ const MeetingDetailPage = () => {
               ))}
             </div>
 
-            <div className="bg-brand-surface border border-brand-border rounded-[2.5rem] p-10 shadow-2xl min-h-[500px]">
+            <div className="bg-brand-surface border border-brand-border rounded-3xl lg:rounded-[2.5rem] p-5 lg:p-10 shadow-xl lg:shadow-2xl min-h-[300px] lg:min-h-[500px]">
               {activeTab === 'summary' && (
                 <div className="animate-in fade-in duration-500 space-y-12">
                   {summaryLoading ? (
@@ -494,9 +494,9 @@ const MeetingDetailPage = () => {
                         <div
                           key={i}
                           onClick={() => handleTimeJump(segment.start_seconds || segment.start_time)}
-                          className="py-6 flex gap-8 group cursor-pointer hover:bg-white/[0.01] transition-all -mx-4 px-4 rounded-xl"
+                          className="py-4 lg:py-6 flex flex-col sm:flex-row gap-3 sm:gap-6 lg:gap-8 group cursor-pointer hover:bg-white/[0.01] transition-all -mx-2 sm:-mx-4 px-2 sm:px-4 rounded-xl"
                         >
-                          <div className="w-20 pt-1 shrink-0">
+                          <div className="w-full sm:w-16 lg:w-20 pt-1 shrink-0">
                             <span className="text-[10px] font-black text-text-muted bg-brand-highlight px-2.5 py-1 rounded-lg border border-brand-border group-hover:text-blue-500 group-hover:border-blue-500/30 transition-all">
                               {formatSeconds(segment.start_seconds || segment.start_time)}
                             </span>
@@ -536,7 +536,7 @@ const MeetingDetailPage = () => {
                                 )}
                               </div>
                             </div>
-                            <p className="text-sm font-medium text-text-muted leading-relaxed group-hover:text-text-main transition-colors">
+                            <p className="text-xs sm:text-sm font-medium text-text-muted leading-relaxed group-hover:text-text-main transition-colors">
                               {segment.text || segment.content || 'Segment content unavailable'}
                             </p>
                           </div>
@@ -564,7 +564,7 @@ const MeetingDetailPage = () => {
 
         {/* Sidebar: AI Actions */}
         <div className="xl:col-span-1 space-y-8">
-          <div className="bg-brand-surface border border-brand-border rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden group">
+          <div className="bg-brand-surface border border-brand-border rounded-3xl lg:rounded-[2.5rem] p-6 lg:p-8 shadow-xl lg:shadow-2xl relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-24 bg-blue-600/5 rounded-full -mr-24 -mt-24 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
             <div className="relative z-10">
               <h3 className="text-sm font-black text-text-main uppercase tracking-widest mb-2">Cognitive Assistant</h3>
@@ -587,7 +587,7 @@ const MeetingDetailPage = () => {
             </div>
           </div>
 
-          <div className="bg-brand-surface border border-brand-border rounded-[2.5rem] p-8 shadow-xl">
+          <div className="bg-brand-surface border border-brand-border rounded-3xl lg:rounded-[2.5rem] p-6 lg:p-8 shadow-xl">
             <h3 className="text-sm font-black text-text-main uppercase tracking-widest mb-6">Strategic Insights</h3>
             <div className="space-y-4">
               {[

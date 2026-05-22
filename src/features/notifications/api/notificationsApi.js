@@ -37,11 +37,26 @@ export const notificationsApi = baseApi.injectEndpoints({
       providesTags: ['Notification'],
     }),
     markAsRead: builder.mutation({
-      query: ({ id, sk }) => ({
+      query: ({ id }) => ({
         url: `notifications/${id}/read/`,
         method: 'PATCH',
-        body: { sk },
       }),
+      async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          notificationsApi.util.updateQueryData('getNotifications', undefined, (draft) => {
+            const notif = draft.results.find((n) => n.id === id)
+            if (notif) {
+              notif.is_read = 'true'
+              draft.unread_count = Math.max(0, (draft.unread_count || 1) - 1)
+            }
+          })
+        )
+        try {
+          await queryFulfilled
+        } catch {
+          patchResult.undo()
+        }
+      },
       invalidatesTags: ['Notification'],
     }),
     markAllAsRead: builder.mutation({
@@ -49,14 +64,47 @@ export const notificationsApi = baseApi.injectEndpoints({
         url: 'notifications/read-all/',
         method: 'PATCH',
       }),
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          notificationsApi.util.updateQueryData('getNotifications', undefined, (draft) => {
+            draft.results.forEach((n) => {
+              n.is_read = 'true'
+            })
+            draft.unread_count = 0
+          })
+        )
+        try {
+          await queryFulfilled
+        } catch {
+          patchResult.undo()
+        }
+      },
       invalidatesTags: ['Notification'],
     }),
     deleteNotification: builder.mutation({
-      query: ({ id, sk }) => ({
+      query: ({ id }) => ({
         url: `notifications/${id}/`,
         method: 'DELETE',
-        body: { sk },
       }),
+      async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          notificationsApi.util.updateQueryData('getNotifications', undefined, (draft) => {
+            const notifIndex = draft.results.findIndex((n) => n.id === id)
+            if (notifIndex !== -1) {
+              const notif = draft.results[notifIndex]
+              if (notif.is_read !== 'true' && notif.is_read !== true) {
+                 draft.unread_count = Math.max(0, (draft.unread_count || 1) - 1)
+              }
+              draft.results.splice(notifIndex, 1)
+            }
+          })
+        )
+        try {
+          await queryFulfilled
+        } catch {
+          patchResult.undo()
+        }
+      },
       invalidatesTags: ['Notification'],
     }),
   }),

@@ -22,6 +22,7 @@ import CalendarCallback from './features/meetings/pages/CalendarCallback'
 import ActionItemsPage   from './features/meetings/pages/ActionItemsPage'
 import AnalyticsPage     from './features/analytics/pages/AnalyticsPage'
 import InviteAcceptPage  from './features/accounts/pages/InviteAcceptPage'
+import NotificationsPage from './features/notifications/pages/NotificationsPage'
 import PrivateRoute       from './components/shared/PrivateRoute'
 import { Toaster } from 'react-hot-toast'
 import RateLimitToast from './components/shared/RateLimitToast'
@@ -70,6 +71,7 @@ export default function App() {
           <Route path='/dashboard/analytics' element={<PrivateRoute><AnalyticsPage /></PrivateRoute>} />
           <Route path='/dashboard/chat' element={<PrivateRoute><ChatPage /></PrivateRoute>} />
           <Route path='/dashboard/search' element={<PrivateRoute><SearchPage /></PrivateRoute>} />
+          <Route path='/dashboard/notifications' element={<PrivateRoute><NotificationsPage /></PrivateRoute>} />
           <Route path='/dashboard/settings' element={<PrivateRoute><SettingsPage /></PrivateRoute>} />
           <Route path='/dashboard/billing' element={<PrivateRoute><BillingPage /></PrivateRoute>} />
           

@@ -20,14 +20,14 @@ const MeetingsPage = () => {
 
   return (
     <AppLayout>
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-text-main mb-2">Meetings</h1>
-          <p className="text-text-muted">Review your AI-powered meeting intelligence and transcripts.</p>
+          <h1 className="text-2xl font-semibold text-text-main tracking-tight mb-1">Meetings</h1>
+          <p className="text-sm text-text-muted">Review your AI-powered meeting intelligence and transcripts.</p>
         </div>
         <Link 
           to="/dashboard/meetings/upload" 
-          className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-bold text-xs uppercase tracking-widest transition-all shadow-xl shadow-blue-600/20"
+          className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-colors shadow-sm w-full md:w-auto shrink-0"
         >
           <Plus className="w-4 h-4" />
           New Meeting

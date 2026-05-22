@@ -9,7 +9,8 @@
   --brand-bg: #f8fafc;
   --brand-surface: #ffffff;
   --brand-card: #ffffff;
-  --brand-border: rgba(0, 0, 0, 0.08);
+  --brand-border: rgba(0, 0, 0, 0.12);
+  --brand-border-hover: rgba(0, 0, 0, 0.2);
   --brand-highlight: rgba(0, 0, 0, 0.04);
   --brand-primary: #2563eb;
   --text-main: #020617;
@@ -21,7 +22,8 @@
   --brand-bg: #050505;
   --brand-surface: #0a0a0a;
   --brand-card: #1c1f26;
-  --brand-border: rgba(255, 255, 255, 0.05);
+  --brand-border: rgba(255, 255, 255, 0.08);
+  --brand-border-hover: rgba(255, 255, 255, 0.15);
   --brand-highlight: rgba(255, 255, 255, 0.05);
   --brand-primary: #60a5fa;
   --text-main: #f8fafc;
@@ -37,6 +39,7 @@
   --color-brand-surface: var(--brand-surface);
   --color-brand-card: var(--brand-card);
   --color-brand-border: var(--brand-border);
+  --color-brand-border-hover: var(--brand-border-hover);
   --color-brand-highlight: var(--brand-highlight);
   --color-brand-primary: var(--brand-primary);
   --color-text-main: var(--text-main);

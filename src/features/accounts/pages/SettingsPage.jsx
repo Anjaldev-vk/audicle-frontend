@@ -175,159 +175,195 @@ export default function SettingsPage() {
     { id: 'billing', name: 'Billing', icon: CreditCard },
   ]
 
+  const allTabs = [
+    ...personalTabs,
+    ...orgTabs
+  ];
+
   return (
     <AppLayout>
-      <div className="flex flex-col lg:flex-row gap-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-8 animate-in fade-in duration-500">
         
-        {/* Navigation Sidebar */}
-        <div className="w-full lg:w-72 shrink-0">
-          <div className="bg-brand-surface border border-brand-border rounded-[2.5rem] p-4 shadow-xl sticky top-8">
-            <div className="p-6 mb-2">
-               <h2 className="text-sm font-black text-text-main uppercase tracking-[0.2em]">Settings</h2>
-               <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest mt-1">
-                 {isOrganisationWorkspace ? activeWorkspace?.name || 'Organisation' : 'Personal workspace'}
-               </p>
-            </div>
+        {/* Header */}
+        <div className="mb-8 md:mb-12">
+          <h1 className="text-2xl md:text-3xl font-bold text-text-main tracking-tight">Settings</h1>
+          <p className="text-sm text-text-muted mt-1">
+            Manage your {isOrganisationWorkspace ? 'organisation workspace' : 'personal account'} preferences.
+          </p>
+        </div>
 
-            {/* Personal settings section */}
-            <div className="mb-2">
-              <p className="px-6 py-2 text-[9px] font-black text-text-muted/50 uppercase tracking-[0.2em]">Personal</p>
-              <div className="space-y-1">
-                {personalTabs.map((tab) => (
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-16">
+          
+          {/* Navigation Sidebar */}
+          <div className="w-full lg:w-56 shrink-0">
+            <div className="sticky top-8">
+              {/* Mobile: Horizontal scrollable underline tabs */}
+              <div className="flex lg:hidden overflow-x-auto custom-scrollbar border-b border-brand-border gap-6 pb-px">
+                {allTabs.map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`
-                      w-full flex items-center justify-between px-6 py-4 rounded-2xl transition-all group
-                      ${activeTab === tab.id 
-                        ? 'bg-blue-600 text-white shadow-xl shadow-blue-600/20' 
-                        : 'hover:bg-brand-highlight text-text-muted hover:text-text-main'}
-                    `}
+                    className={`flex items-center gap-2 pb-3 border-b-2 text-sm font-medium transition-colors shrink-0 ${
+                      activeTab === tab.id
+                        ? 'border-blue-500 text-blue-500'
+                        : 'border-transparent text-text-muted hover:text-text-main'
+                    }`}
                   >
-                    <div className="flex items-center gap-4">
-                      <tab.icon size={18} className={activeTab === tab.id ? 'text-white' : 'text-text-muted group-hover:text-blue-500 transition-colors'} />
-                      <span className="text-[10px] font-black uppercase tracking-widest">{tab.name}</span>
-                    </div>
-                    <ChevronRight size={14} className={activeTab === tab.id ? 'opacity-50' : 'opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all'} />
+                    <tab.icon size={16} />
+                    {tab.name}
                   </button>
                 ))}
               </div>
-            </div>
 
-            {/* Organisation / Billing section */}
-            <div>
-              <p className="px-6 py-2 text-[9px] font-black text-text-muted/50 uppercase tracking-[0.2em]">
-                {isOrganisationWorkspace ? 'Organisation' : 'Plan'}
-              </p>
-              <div className="space-y-1">
-                {orgTabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`
-                      w-full flex items-center justify-between px-6 py-4 rounded-2xl transition-all group
-                      ${activeTab === tab.id 
-                        ? 'bg-blue-600 text-white shadow-xl shadow-blue-600/20' 
-                        : 'hover:bg-brand-highlight text-text-muted hover:text-text-main'}
-                    `}
-                  >
-                    <div className="flex items-center gap-4">
-                      <tab.icon size={18} className={activeTab === tab.id ? 'text-white' : 'text-text-muted group-hover:text-blue-500 transition-colors'} />
-                      <span className="text-[10px] font-black uppercase tracking-widest">{tab.name}</span>
-                    </div>
-                    <ChevronRight size={14} className={activeTab === tab.id ? 'opacity-50' : 'opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all'} />
-                  </button>
-                ))}
+              {/* Desktop: Vertical sections */}
+              <div className="hidden lg:flex flex-col gap-8">
+                <div>
+                  <h3 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3 px-3">
+                    Personal
+                  </h3>
+                  <div className="space-y-1">
+                    {personalTabs.map((tab) => (
+                      <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                          activeTab === tab.id
+                            ? 'bg-blue-50/50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400'
+                            : 'text-text-muted hover:bg-brand-surface hover:text-text-main'
+                        }`}
+                      >
+                        <tab.icon size={16} />
+                        {tab.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3 px-3">
+                    {isOrganisationWorkspace ? 'Workspace' : 'Plan'}
+                  </h3>
+                  <div className="space-y-1">
+                    {orgTabs.map((tab) => (
+                      <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                          activeTab === tab.id
+                            ? 'bg-blue-50/50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400'
+                            : 'text-text-muted hover:bg-brand-surface hover:text-text-main'
+                        }`}
+                      >
+                        <tab.icon size={16} />
+                        {tab.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Content Area */}
-        <div className="flex-1 min-w-0">
-          <div className="bg-brand-surface border border-brand-border rounded-[2.5rem] p-8 md:p-12 shadow-2xl min-h-[600px]">
+          {/* Content Area */}
+          <div className="flex-1 min-w-0 pb-20">
             
             {/* ── Profile Tab ─────────────────────── */}
             {activeTab === 'profile' && (
-              <div className="max-w-2xl animate-in fade-in slide-in-from-right-4 duration-500">
-                <div className="flex items-center gap-6 mb-12">
-                   <div className="w-20 h-20 rounded-3xl bg-blue-600 flex items-center justify-center text-white text-3xl font-black shadow-2xl shadow-blue-600/20">
+              <div className="max-w-2xl animate-in fade-in duration-300">
+                <div className="mb-8 pb-8 border-b border-brand-border">
+                  <h2 className="text-xl font-bold text-text-main mb-6">Profile</h2>
+                  <div className="flex items-center gap-6">
+                    <div className="w-20 h-20 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 text-3xl font-bold border border-blue-200 dark:border-blue-800/50 shrink-0">
                       {user?.first_name?.substring(0, 1) || 'U'}
-                   </div>
-                   <div>
-                      <h3 className="text-2xl font-black text-text-main tracking-tight">{user?.first_name} {user?.last_name}</h3>
-                      <p className="text-text-muted font-bold text-sm tracking-tight">{user?.email}</p>
-                      <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 text-emerald-500 rounded-full border border-emerald-500/20 text-[10px] font-black uppercase tracking-widest">
-                         Verified Account
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-text-main">{user?.first_name} {user?.last_name}</h3>
+                      <p className="text-text-muted text-sm">{user?.email}</p>
+                      <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 rounded-md border border-emerald-200 dark:border-emerald-500/20 text-xs font-medium">
+                        <Shield size={12} />
+                        Verified Account
                       </div>
-                   </div>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                   <div className="space-y-2">
-                      <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Account Role</label>
-                      <div className="w-full px-5 py-4 bg-brand-highlight border border-brand-border rounded-2xl text-text-main font-bold capitalize">{workspaceRole}</div>
-                   </div>
-                   <div className="space-y-2">
-                      <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Current Plan</label>
-                      <div className="w-full px-5 py-4 bg-brand-highlight border border-brand-border rounded-2xl text-text-main font-bold capitalize">{currentPlan}</div>
-                   </div>
-                </div>
+                <div className="space-y-6">
+                  <div className="grid sm:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-text-main">Account Role</label>
+                      <div className="w-full px-4 py-2.5 bg-brand-surface border border-brand-border rounded-lg text-text-main capitalize">
+                        {workspaceRole}
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-text-main">Current Plan</label>
+                      <div className="w-full px-4 py-2.5 bg-brand-surface border border-brand-border rounded-lg text-text-main capitalize">
+                        {currentPlan}
+                      </div>
+                    </div>
+                  </div>
 
-                <div className="mt-12 pt-12 border-t border-brand-border">
-                   <h4 className="text-sm font-black text-text-main uppercase tracking-widest mb-6">Security Actions</h4>
-                   <button 
-                     onClick={() => setIsChangePasswordOpen(true)}
-                     className="px-8 py-3 bg-brand-highlight hover:bg-brand-bg text-text-main border border-brand-border rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
-                   >
-                     Update Password
-                   </button>
+                  <div className="pt-6 border-t border-brand-border">
+                    <h3 className="text-sm font-medium text-text-main mb-4">Security Actions</h3>
+                    <button 
+                      onClick={() => setIsChangePasswordOpen(true)}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors shadow-sm"
+                    >
+                      Update Password
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
 
             {/* ── Organisation Tab ────────────────── */}
             {activeTab === 'organisation' && (
-              <div className="max-w-2xl animate-in fade-in slide-in-from-right-4 duration-500">
-                <div className="flex items-center gap-4 mb-10">
-                   <Building className="text-blue-500" size={24} />
-                   <h3 className="text-2xl font-black text-text-main tracking-tight">Workspace Identity</h3>
+              <div className="max-w-2xl animate-in fade-in duration-300">
+                <div className="mb-8 pb-8 border-b border-brand-border">
+                  <h2 className="text-xl font-bold text-text-main">Workspace Settings</h2>
+                  <p className="text-sm text-text-muted mt-1">Manage your organisation details and preferences.</p>
                 </div>
 
-                <form onSubmit={handleOrgSubmit} className="space-y-8">
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Workspace Name</label>
-                      <input
-                        type="text"
-                        value={orgForm.name}
-                        onChange={(e) => setOrgForm({ ...orgForm, name: e.target.value })}
-                        disabled={!isOwnerOrAdmin}
-                        className="w-full px-6 py-4 bg-brand-highlight border border-brand-border focus:border-blue-500/50 rounded-2xl text-text-main font-bold outline-none transition-all disabled:opacity-50"
-                        placeholder="Organisation Name"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Workspace Slug</label>
+                <form onSubmit={handleOrgSubmit} className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-text-main">Workspace Name</label>
+                    <input
+                      type="text"
+                      value={orgForm.name}
+                      onChange={(e) => setOrgForm({ ...orgForm, name: e.target.value })}
+                      disabled={!isOwnerOrAdmin}
+                      className="w-full px-4 py-2.5 bg-brand-bg border border-brand-border focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-lg text-text-main outline-none transition-all disabled:opacity-50 disabled:bg-brand-surface"
+                      placeholder="Organisation Name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-text-main">Workspace Slug</label>
+                    <div className="flex items-center">
+                      <span className="px-4 py-2.5 bg-brand-surface border border-brand-border border-r-0 rounded-l-lg text-text-muted text-sm">
+                        audicle.ai/
+                      </span>
                       <input
                         type="text"
                         value={orgForm.slug}
                         onChange={(e) => setOrgForm({ ...orgForm, slug: e.target.value })}
                         disabled={!isOwnerOrAdmin}
-                        className="w-full px-6 py-4 bg-brand-highlight border border-brand-border focus:border-blue-500/50 rounded-2xl text-text-main font-bold outline-none transition-all disabled:opacity-50"
+                        className="flex-1 px-4 py-2.5 bg-brand-bg border border-brand-border focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-r-lg text-text-main outline-none transition-all disabled:opacity-50 disabled:bg-brand-surface"
                         placeholder="organisation-slug"
                       />
                     </div>
                   </div>
 
                   {isOwnerOrAdmin && (
-                    <button
-                      type="submit"
-                      disabled={isUpdatingOrg}
-                      className="px-10 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-blue-600/20 transition-all disabled:opacity-50"
-                    >
-                      {isUpdatingOrg ? <Loader2 size={16} className="animate-spin" /> : 'Save Changes'}
-                    </button>
+                    <div className="pt-4">
+                      <button
+                        type="submit"
+                        disabled={isUpdatingOrg}
+                        className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2"
+                      >
+                        {isUpdatingOrg ? <Loader2 size={16} className="animate-spin" /> : null}
+                        Save Changes
+                      </button>
+                    </div>
                   )}
                 </form>
               </div>
@@ -335,164 +371,186 @@ export default function SettingsPage() {
 
             {/* ── Members Tab ─────────────────────── */}
             {activeTab === 'members' && (
-              <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12">
-                   <div className="flex items-center gap-4">
-                      <Users className="text-blue-500" size={24} />
-                      <div>
-                        <h3 className="text-2xl font-black text-text-main tracking-tight">Team Members</h3>
-                        <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest mt-1">
-                          {members.length} member{members.length !== 1 ? 's' : ''}
-                        </p>
-                      </div>
-                   </div>
-                   {isOwnerOrAdmin && (
-                     <InviteForm 
-                       onInvite={inviteMember} 
-                       isLoading={isInviting}
-                       onPlanLimit={() => setShowUpgrade(true)}
-                     />
-                   )}
+              <div className="animate-in fade-in duration-300">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-8 border-b border-brand-border">
+                  <div>
+                    <h2 className="text-xl font-bold text-text-main">Team Members</h2>
+                    <p className="text-sm text-text-muted mt-1">
+                      Manage who has access to this workspace.
+                    </p>
+                  </div>
+                  {isOwnerOrAdmin && (
+                    <div className="w-full sm:w-auto">
+                      <InviteForm 
+                        onInvite={inviteMember} 
+                        isLoading={isInviting}
+                        onPlanLimit={() => setShowUpgrade(true)}
+                      />
+                    </div>
+                  )}
                 </div>
 
-                <MemberList 
-                  members={members} 
-                  currentUserId={user?.id}
-                  currentUserRole={workspaceRole}
-                  onRemove={(member) => {
-                    const userData = member.user || member
-                    setConfirmDelete({ 
-                      isOpen: true, 
-                      memberId: member.id || userData.id, 
-                      memberName: `${userData.first_name} ${userData.last_name}` 
-                    })
-                  }}
-                />
+                <div className="bg-brand-surface border border-brand-border rounded-xl overflow-hidden shadow-sm">
+                  <MemberList 
+                    members={members} 
+                    currentUserId={user?.id}
+                    currentUserRole={workspaceRole}
+                    onRemove={(member) => {
+                      const userData = member.user || member
+                      setConfirmDelete({ 
+                        isOpen: true, 
+                        memberId: member.id || userData.id, 
+                        memberName: `${userData.first_name} ${userData.last_name}` 
+                      })
+                    }}
+                  />
+                </div>
               </div>
             )}
 
             {/* ── Security Tab ────────────────────── */}
             {activeTab === 'security' && (
-              <div className="animate-in fade-in slide-in-from-right-4 duration-500 space-y-12">
-                <div>
-                   <div className="flex items-center gap-4 mb-10">
-                      <Lock className="text-blue-500" size={24} />
-                      <h3 className="text-2xl font-black text-text-main tracking-tight">Access Control</h3>
-                   </div>
+              <div className="max-w-3xl animate-in fade-in duration-300 space-y-10">
+                
+                {/* MFA Section */}
+                <section>
+                  <div className="mb-4">
+                    <h2 className="text-xl font-bold text-text-main">Access Control</h2>
+                    <p className="text-sm text-text-muted mt-1">Manage your account's security methods.</p>
+                  </div>
 
-                   <div className="bg-brand-highlight border border-brand-border rounded-[2.5rem] p-10 flex flex-col md:flex-row items-center justify-between gap-10 group">
-                      <div className="flex items-center gap-8">
-                         <div className={`w-16 h-16 rounded-3xl flex items-center justify-center border transition-all ${user?.mfa_enabled ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-red-500/10 border-red-500/20'}`}>
-                            <Shield size={32} className={user?.mfa_enabled ? 'text-emerald-500' : 'text-red-500'} />
-                         </div>
-                         <div>
-                            <h4 className="text-lg font-black text-text-main tracking-tight">Multi-Factor Authentication</h4>
-                            <p className="text-sm text-text-muted font-bold tracking-tight mt-1">Fortify your account with TOTP tokens.</p>
-                         </div>
+                  <div className="bg-brand-surface border border-brand-border rounded-xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                    <div className="flex items-start gap-4">
+                      <div className={`p-2.5 rounded-lg shrink-0 ${user?.mfa_enabled ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-brand-bg text-text-muted border border-brand-border'}`}>
+                        <Shield size={20} />
                       </div>
-                      <button 
-                        onClick={() => user?.mfa_enabled ? setIsMfaDisableOpen(true) : setIsMfaSetupOpen(true)}
-                        className={`px-10 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl ${user?.mfa_enabled ? 'bg-brand-surface border border-brand-border text-red-500 hover:bg-red-500/10' : 'bg-blue-600 text-white hover:bg-blue-500 shadow-blue-600/20'}`}
-                      >
-                        {user?.mfa_enabled ? 'Disable MFA' : 'Enable MFA'}
-                      </button>
-                   </div>
-                </div>
+                      <div>
+                        <h4 className="text-sm font-semibold text-text-main">Multi-Factor Authentication</h4>
+                        <p className="text-sm text-text-muted mt-1">Require an extra security code when logging in.</p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => user?.mfa_enabled ? setIsMfaDisableOpen(true) : setIsMfaSetupOpen(true)}
+                      className={`w-full sm:w-auto px-4 py-2 rounded-lg text-sm font-medium transition-colors shrink-0 ${
+                        user?.mfa_enabled 
+                          ? 'bg-brand-surface border border-brand-border text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10' 
+                          : 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
+                      }`}
+                    >
+                      {user?.mfa_enabled ? 'Disable MFA' : 'Enable MFA'}
+                    </button>
+                  </div>
+                </section>
 
-                <div>
-                   <div className="flex items-center gap-4 mb-8">
-                      <Smartphone className="text-blue-500" size={20} />
-                      <h4 className="text-sm font-black text-text-main uppercase tracking-widest">Active Sessions</h4>
-                   </div>
-                   <div className="space-y-4">
-                      {(sessions?.data || sessions?.results || []).map((s) => (
-                        <div key={s.id} className="flex items-center justify-between p-6 bg-brand-surface border border-brand-border rounded-2xl hover:border-blue-500/30 transition-all group">
-                           <div className="flex items-center gap-6">
-                              <div className="w-10 h-10 rounded-xl bg-brand-bg border border-brand-border flex items-center justify-center">
-                                 <Activity size={16} className={s.is_current ? 'text-emerald-500' : 'text-text-muted'} />
-                              </div>
-                              <div>
-                                 <div className="flex items-center gap-3">
-                                    <span className="text-sm font-black text-text-main">{s.device_name || 'Unknown Device'}</span>
-                                    {s.is_current && <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-500 rounded-md text-[8px] font-black uppercase tracking-widest border border-emerald-500/20">Current</span>}
-                                 </div>
-                                 <p className="text-[10px] text-text-muted font-bold mt-1 uppercase tracking-widest">
-                                   {s.browser} • Last active {s.last_activity ? formatDistanceToNow(new Date(s.last_activity)) + ' ago' : 'recently'}
-                                 </p>
-                              </div>
-                           </div>
-                           {!s.is_current && (
-                             <button 
-                               onClick={() => handleRevokeSession(s.id)}
-                               className="p-3 text-text-muted hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all opacity-0 group-hover:opacity-100"
-                             >
-                               <LogOut size={16} />
-                             </button>
-                           )}
+                {/* Sessions Section */}
+                <section>
+                  <div className="mb-4 border-t border-brand-border pt-10">
+                    <h2 className="text-xl font-bold text-text-main">Active Sessions</h2>
+                    <p className="text-sm text-text-muted mt-1">Manage devices currently logged into your account.</p>
+                  </div>
+
+                  <div className="border border-brand-border rounded-xl divide-y divide-brand-border bg-brand-surface overflow-hidden">
+                    {(sessions?.data || sessions?.results || []).map((s) => (
+                      <div key={s.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-5 gap-4">
+                        <div className="flex items-start gap-4">
+                          <div className="p-2.5 rounded-lg bg-brand-bg border border-brand-border shrink-0">
+                            <Activity size={18} className={s.is_current ? 'text-emerald-500' : 'text-text-muted'} />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-semibold text-text-main">{s.device_name || 'Unknown Device'}</span>
+                              {s.is_current && (
+                                <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 rounded-full text-[10px] font-medium border border-emerald-200 dark:border-emerald-500/20">
+                                  Current
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs text-text-muted mt-1">
+                              {s.browser} • Last active {s.last_activity ? formatDistanceToNow(new Date(s.last_activity)) + ' ago' : 'recently'}
+                            </p>
+                          </div>
                         </div>
-                      ))}
-                   </div>
-                </div>
+                        {!s.is_current && (
+                          <button 
+                            onClick={() => handleRevokeSession(s.id)}
+                            className="text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+                          >
+                            Revoke
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+
               </div>
             )}
 
             {/* ── Billing Tab ─────────────────────── */}
             {activeTab === 'billing' && (
-              <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-                 <div className="flex items-center gap-4 mb-10">
-                    <CreditCard className="text-blue-500" size={24} />
-                    <h3 className="text-2xl font-black text-text-main tracking-tight">Billing & Plans</h3>
-                 </div>
+              <div className="max-w-2xl animate-in fade-in duration-300">
+                <div className="mb-8 pb-8 border-b border-brand-border">
+                  <h2 className="text-xl font-bold text-text-main">Billing & Plans</h2>
+                  <p className="text-sm text-text-muted mt-1">Manage your subscription and billing details.</p>
+                </div>
 
-                 <div className="bg-brand-highlight border border-brand-border rounded-[2.5rem] p-10 mb-10 overflow-hidden relative group">
-                    <div className="absolute top-0 right-0 p-32 bg-blue-500/5 rounded-full -mr-32 -mt-32 blur-3xl opacity-50 group-hover:opacity-100 transition-opacity" />
-                    <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-10">
-                       <div>
-                          <p className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-2">Current Plan</p>
-                          <h4 className="text-4xl font-black text-text-main tracking-tighter uppercase">{currentPlan}</h4>
-                          <p className="text-sm text-text-muted font-bold mt-4 tracking-tight">
-                            {currentPlan === 'enterprise' ? 'Unlimited capacity.' : currentPlan === 'pro' ? 'Enhanced intelligence processing.' : 'Basic plan. Upgrade to remove limits.'}
-                          </p>
-                       </div>
-                       <Link to="/dashboard/billing" className="px-10 py-5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-blue-600/20 transition-all text-center">
-                          Manage Plan
-                       </Link>
-                    </div>
-                 </div>
+                <div className="bg-brand-surface border border-brand-border rounded-xl p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
+                  <div>
+                    <div className="text-sm font-medium text-text-muted mb-1">Current Plan</div>
+                    <h3 className="text-2xl font-bold text-text-main capitalize mb-2">{currentPlan}</h3>
+                    <p className="text-sm text-text-muted">
+                      {currentPlan === 'enterprise' 
+                        ? 'Unlimited capacity for your whole organisation.' 
+                        : currentPlan === 'pro' 
+                        ? 'Enhanced intelligence processing and premium features.' 
+                        : 'Basic features. Upgrade to remove limits and unlock premium capabilities.'}
+                    </p>
+                  </div>
+                  <Link 
+                    to="/dashboard/billing" 
+                    className="w-full md:w-auto px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-all text-center shadow-sm shrink-0"
+                  >
+                    Manage Plan
+                  </Link>
+                </div>
               </div>
             )}
 
             {/* ── Integrations Tab ────────────────── */}
             {activeTab === 'integrations' && (
-              <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-                 <div className="flex items-center gap-4 mb-10">
-                    <LinkIcon className="text-blue-500" size={24} />
-                    <h3 className="text-2xl font-black text-text-main tracking-tight">Integrations</h3>
-                 </div>
+              <div className="max-w-2xl animate-in fade-in duration-300">
+                <div className="mb-8 pb-8 border-b border-brand-border">
+                  <h2 className="text-xl font-bold text-text-main">Integrations</h2>
+                  <p className="text-sm text-text-muted mt-1">Connect Audicle with your favorite tools.</p>
+                </div>
 
-                 <div className="space-y-6">
-                    <div className="bg-brand-highlight border border-brand-border rounded-[2.5rem] p-10 flex flex-col md:flex-row items-center justify-between gap-10 group">
-                       <div className="flex items-center gap-8">
-                          <div className="w-16 h-16 rounded-3xl bg-white border border-brand-border flex items-center justify-center p-3 shadow-xl">
-                             <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg" alt="Google Calendar" className="w-full h-full" />
-                          </div>
-                          <div>
-                             <h4 className="text-lg font-black text-text-main tracking-tight">Google Calendar</h4>
-                             <p className="text-sm text-text-muted font-bold tracking-tight mt-1">Automatic sync for scheduled meetings.</p>
-                             <div className="mt-3 flex items-center gap-2">
-                                <div className={`w-2 h-2 rounded-full ${calendarStatus?.data?.connected ? 'bg-emerald-500' : 'bg-gray-700'}`} />
-                                <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">{calendarStatus?.data?.connected ? 'Connected' : 'Disconnected'}</span>
-                             </div>
-                          </div>
-                       </div>
-                       <button 
-                         onClick={calendarStatus?.data?.connected ? handleDisconnectCalendar : handleConnectCalendar}
-                         className={`px-10 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl ${calendarStatus?.data?.connected ? 'bg-brand-surface border border-brand-border text-red-500 hover:bg-red-500/10' : 'bg-blue-600 text-white hover:bg-blue-500 shadow-blue-600/20'}`}
-                       >
-                         {calendarStatus?.data?.connected ? 'Disconnect' : 'Connect'}
-                       </button>
+                <div className="bg-brand-surface border border-brand-border rounded-xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6 shadow-sm">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-lg bg-white border border-gray-200 flex items-center justify-center p-2.5 shrink-0 shadow-sm">
+                      <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg" alt="Google Calendar" className="w-full h-full" />
                     </div>
-                 </div>
+                    <div>
+                      <h4 className="text-sm font-semibold text-text-main">Google Calendar</h4>
+                      <p className="text-sm text-text-muted mt-1">Automatically sync your scheduled meetings for transcription.</p>
+                      <div className="mt-2 flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${calendarStatus?.data?.connected ? 'bg-emerald-500' : 'bg-gray-400'}`} />
+                        <span className="text-xs font-medium text-text-muted">
+                          {calendarStatus?.data?.connected ? 'Connected' : 'Not connected'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={calendarStatus?.data?.connected ? handleDisconnectCalendar : handleConnectCalendar}
+                    className={`w-full sm:w-auto px-4 py-2 rounded-lg text-sm font-medium transition-colors shrink-0 ${
+                      calendarStatus?.data?.connected 
+                        ? 'bg-brand-surface border border-brand-border text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10' 
+                        : 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
+                    }`}
+                  >
+                    {calendarStatus?.data?.connected ? 'Disconnect' : 'Connect'}
+                  </button>
+                </div>
               </div>
             )}
 

@@ -29,6 +29,17 @@ export const actionItemsApi = baseApi.injectEndpoints({
           : [{ type: 'ActionItem', id: 'MEETING_LIST' }];
       },
     }),
+    createActionItem: builder.mutation({
+      query: ({ meetingId, ...data }) => ({
+        url: `meetings/${meetingId}/action-items/`,
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: (result, error, { meetingId }) => [
+        { type: 'ActionItem', id: 'LIST' },
+        { type: 'ActionItem', id: 'MEETING_LIST' },
+      ],
+    }),
     updateActionItem: builder.mutation({
       query: ({ id, ...data }) => ({
         url: `action-items/${id}/`,
@@ -58,6 +69,7 @@ export const actionItemsApi = baseApi.injectEndpoints({
 export const {
   useGetActionItemsQuery,
   useGetMeetingActionItemsQuery,
+  useCreateActionItemMutation,
   useUpdateActionItemMutation,
   useDeleteActionItemMutation,
 } = actionItemsApi

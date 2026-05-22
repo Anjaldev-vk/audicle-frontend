@@ -69,18 +69,18 @@ const CalendarPage = () => {
   const prevMonth = () => setCurrentDate(subMonths(currentDate, 1));
 
   const renderHeader = () => (
-    <div className="flex items-center justify-between mb-10">
-      <div className="flex items-center gap-6">
-        <div className="w-12 h-12 rounded-2xl bg-blue-600/10 flex items-center justify-center border border-blue-500/20 shadow-lg shadow-blue-600/5">
-          <CalendarIcon className="w-6 h-6 text-blue-500" />
+    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8 lg:mb-10">
+      <div className="flex items-center gap-4 lg:gap-6">
+        <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl bg-blue-600/10 flex items-center justify-center border border-blue-500/20 shadow-lg shadow-blue-600/5 shrink-0">
+          <CalendarIcon className="w-5 h-5 lg:w-6 lg:h-6 text-blue-500" />
         </div>
         <div>
-          <h2 className="text-3xl font-black text-text-main tracking-tighter leading-tight">{format(currentDate, 'MMMM yyyy')}</h2>
-          <p className="text-[10px] font-bold text-text-muted uppercase tracking-[0.2em] mt-1">Strategic Timeline Management</p>
+          <h2 className="text-2xl lg:text-3xl font-black text-text-main tracking-tighter leading-tight">{format(currentDate, 'MMMM yyyy')}</h2>
+          <p className="text-[9px] lg:text-[10px] font-bold text-text-muted uppercase tracking-[0.2em] mt-1">Strategic Timeline Management</p>
         </div>
       </div>
       
-      <div className="flex items-center gap-6">
+      <div className="flex items-center justify-between lg:justify-end gap-4 lg:gap-6">
         <div className="flex items-center gap-1.5 p-1.5 bg-brand-surface border border-brand-border rounded-2xl shadow-inner">
           <button onClick={prevMonth} className="p-2.5 hover:bg-brand-highlight text-text-muted hover:text-text-main rounded-xl transition-all">
             <ChevronLeft size={18} />
@@ -114,7 +114,10 @@ const CalendarPage = () => {
     return (
       <div className="grid grid-cols-7 mb-4">
         {days.map((day, i) => (
-          <div key={i} className="text-center text-[10px] font-black text-text-muted uppercase tracking-[0.3em] py-4">{day}</div>
+          <div key={i} className="text-center text-[9px] sm:text-[10px] font-black text-text-muted uppercase tracking-widest sm:tracking-[0.3em] py-4">
+            <span className="sm:hidden">{day.substring(0, 1)}</span>
+            <span className="hidden sm:inline">{day}</span>
+          </div>
         ))}
       </div>
     );
@@ -142,10 +145,10 @@ const CalendarPage = () => {
           <div
             key={day.toString()}
             className={`
-              min-h-[110px] p-4 border border-brand-border transition-all relative group cursor-pointer
+              min-h-[70px] sm:min-h-[110px] p-1.5 sm:p-4 border border-brand-border transition-all relative group cursor-pointer
               ${!isSameMonth(day, monthStart) ? 'bg-brand-bg opacity-30' : 'bg-brand-surface hover:bg-brand-highlight/40'}
-              ${isSameDay(day, selectedDate) ? 'ring-2 ring-blue-500 ring-inset z-10' : ''}
-              ${isSameDay(day, new Date()) ? 'after:absolute after:top-4 after:right-4 after:w-1.5 after:h-1.5 after:bg-blue-500 after:rounded-full after:shadow-[0_0_8px_rgba(59,130,246,0.8)]' : ''}
+              ${isSameDay(day, selectedDate) ? 'ring-1 sm:ring-2 ring-blue-500 ring-inset z-10' : ''}
+              ${isSameDay(day, new Date()) ? 'after:absolute after:top-1.5 sm:after:top-4 after:right-1.5 sm:after:right-4 after:w-1 sm:after:w-1.5 after:h-1 sm:after:h-1.5 after:bg-blue-500 after:rounded-full after:shadow-[0_0_8px_rgba(59,130,246,0.8)]' : ''}
             `}
             onClick={() => {
               setSelectedDate(cloneDay);
@@ -156,13 +159,13 @@ const CalendarPage = () => {
               }
             }}
           >
-            <div className="flex justify-between items-start">
-              <span className={`text-sm font-black tracking-tighter ${isSameDay(day, selectedDate) ? 'text-blue-500' : 'text-text-main'}`}>{formattedDate}</span>
+            <div className="flex justify-center sm:justify-between items-start">
+              <span className={`text-xs sm:text-sm font-black tracking-tighter ${isSameDay(day, selectedDate) ? 'text-blue-500' : 'text-text-main'}`}>{formattedDate}</span>
             </div>
             
             {/* Dot Indicators */}
             {dayMeetings.length > 0 && (
-              <div className="absolute bottom-3 left-4 flex gap-1 items-center">
+              <div className="absolute bottom-1 sm:bottom-3 left-1/2 -translate-x-1/2 sm:translate-x-0 sm:left-4 flex gap-0.5 sm:gap-1 items-center">
                 {dayMeetings.slice(0, 3).map((_, dotIdx) => (
                   <div 
                     key={dotIdx} 
@@ -186,7 +189,7 @@ const CalendarPage = () => {
       );
       days = [];
     }
-    return <div className="rounded-[2.5rem] overflow-hidden border border-brand-border shadow-2xl">{rows}</div>;
+    return <div className="rounded-2xl lg:rounded-[2.5rem] overflow-hidden border border-brand-border shadow-md lg:shadow-2xl">{rows}</div>;
   };
 
   return (
@@ -206,10 +209,10 @@ const CalendarPage = () => {
                  ))}
                </div>
                {/* Calendar Cells Skeleton */}
-               <div className="rounded-[2.5rem] overflow-hidden border border-brand-border shadow-2xl">
+               <div className="rounded-2xl lg:rounded-[2.5rem] overflow-hidden border border-brand-border shadow-md lg:shadow-2xl">
                  <div className="grid grid-cols-7">
                    {[...Array(35)].map((_, i) => (
-                     <div key={i} className="min-h-[110px] p-4 border border-brand-border bg-brand-surface relative">
+                     <div key={i} className="min-h-[70px] sm:min-h-[110px] p-1.5 sm:p-4 border border-brand-border bg-brand-surface relative">
                        <Skeleton className="w-6 h-5" />
                        {i % 4 === 0 && (
                          <div className="absolute bottom-3 left-4 flex gap-1">
@@ -233,7 +236,7 @@ const CalendarPage = () => {
         <div className="xl:col-span-1 space-y-8">
            <TimelineInsights meetings={meetings} navigate={navigate} />
 
-           <div className="bg-brand-highlight border border-brand-border rounded-[2.5rem] p-8">
+           <div className="bg-brand-highlight border border-brand-border rounded-2xl lg:rounded-[2.5rem] p-6 lg:p-8">
               <h3 className="text-sm font-black text-text-main uppercase tracking-widest mb-4">Sync Status</h3>
               {isConnected ? (
                 <div className="flex items-center gap-4 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl">
@@ -282,14 +285,9 @@ const MeetingsModal = ({ isOpen, onClose, date, meetings, navigate }) => {
   if (!isOpen || !date) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200" 
-        onClick={onClose} 
-      />
-      {/* Modal Container */}
-      <div className="relative bg-brand-surface/90 border border-brand-border rounded-[2.5rem] p-8 max-w-lg w-full shadow-2xl backdrop-blur-md animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center md:p-4">
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 hidden md:block" onClick={onClose} />
+      <div className="relative bg-brand-surface/90 md:border border-brand-border rounded-none md:rounded-3xl lg:rounded-[2.5rem] p-6 md:p-5 lg:p-8 max-w-lg w-full h-full md:h-auto overflow-y-auto shadow-2xl backdrop-blur-md animate-in slide-in-from-bottom-full md:slide-in-from-bottom-0 md:zoom-in-95 duration-200 flex flex-col">
         
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
@@ -375,7 +373,7 @@ const TimelineInsights = ({ meetings, navigate }) => {
   const strokeDashoffset = circumference - (completionRate / 100) * circumference;
 
   return (
-    <div className="bg-brand-surface border border-brand-border rounded-[2.5rem] p-8 shadow-xl">
+    <div className="bg-brand-surface border border-brand-border rounded-2xl lg:rounded-[2.5rem] p-6 lg:p-8 shadow-xl">
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-sm font-black text-text-main uppercase tracking-widest">Timeline Insights</h3>
         <span className="px-2 py-0.5 bg-blue-600/10 text-blue-500 rounded text-[8px] font-black uppercase tracking-widest border border-blue-500/20">

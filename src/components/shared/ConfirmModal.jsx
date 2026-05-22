@@ -5,9 +5,9 @@ const ConfirmModal = ({ isOpen, onClose, onConfirm, title, message, confirmText 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300" onClick={onClose} />
-      <div className="relative bg-brand-surface border border-brand-border rounded-3xl p-8 max-w-md w-full shadow-2xl animate-in zoom-in duration-300">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center md:p-4">
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300 hidden md:block" onClick={onClose} />
+      <div className="relative bg-brand-surface md:border border-brand-border rounded-none md:rounded-3xl p-6 md:p-8 max-w-md w-full h-full md:h-auto overflow-y-auto shadow-2xl animate-in slide-in-from-bottom-full md:slide-in-from-bottom-0 md:zoom-in duration-300 flex flex-col justify-center">
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-3">
             <div className={`p-2 rounded-xl ${type === 'danger' ? 'bg-red-500/10 text-red-500' : 'bg-blue-500/10 text-blue-500'}`}>

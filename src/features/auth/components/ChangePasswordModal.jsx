@@ -35,8 +35,9 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="w-full max-w-md bg-brand-surface border border-brand-border rounded-3xl p-8 md:p-10 shadow-2xl animate-in zoom-in-95 duration-300">
+    <div className="fixed inset-0 z-50 flex items-center justify-center md:p-4">
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300 hidden md:block" onClick={onClose} />
+      <div className="relative bg-brand-surface md:border border-brand-border rounded-none md:rounded-[2.5rem] p-6 md:p-10 max-w-md w-full h-full md:h-auto overflow-y-auto shadow-2xl animate-in slide-in-from-bottom-full md:slide-in-from-bottom-0 md:zoom-in duration-300 flex flex-col justify-center">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl font-bold text-text-main">Change Password</h2>
           <button onClick={onClose} className="text-text-muted hover:text-text-main transition-colors">

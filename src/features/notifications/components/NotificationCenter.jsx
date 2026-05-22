@@ -9,6 +9,7 @@ import {
 import { useNotificationSocket } from '../hooks/useNotificationSocket';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const NotificationCenter = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -47,8 +48,11 @@ const NotificationCenter = () => {
   };
 
   const handleNotificationClick = async (n) => {
-    if (n.is_read !== 'true' && n.is_read !== true) {
-      await markAsRead({ id: n.id, sk: n.sk }).unwrap();
+    const isRead = n.is_read === 'true' || n.is_read === true;
+    if (!isRead) {
+      await markAsRead({ id: n.id }).unwrap().catch((err) => {
+        console.error('markAsRead failed:', err);
+      });
     }
     const meetingId = n.meeting_id || n.metadata?.meeting_id;
     if (meetingId) {
@@ -56,6 +60,11 @@ const NotificationCenter = () => {
       setIsOpen(false);
     }
   };
+
+  // Only show unread notifications in the panel
+  const unreadNotifications = notifications.filter(
+    (n) => n.is_read !== 'true' && n.is_read !== true
+  );
 
   return (
     <div className="relative">
@@ -74,8 +83,8 @@ const NotificationCenter = () => {
       {isOpen && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-          <div className="absolute right-0 mt-4 w-[400px] bg-brand-surface border border-brand-border rounded-3xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-300">
-            <div className="p-6 border-b border-brand-border flex items-center justify-between bg-brand-highlight/30">
+          <div className="fixed inset-0 sm:absolute sm:inset-auto sm:right-0 sm:top-full sm:mt-4 w-full sm:w-[400px] h-[100dvh] sm:h-auto bg-brand-surface sm:border border-brand-border sm:rounded-3xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-300 flex flex-col">
+            <div className="p-6 pt-12 sm:pt-6 border-b border-brand-border flex items-center justify-between bg-brand-highlight/30 shrink-0">
               <div>
                 <h3 className="text-sm font-bold text-text-main tracking-tight">Intelligence Alerts</h3>
                 <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest mt-0.5">{unreadCount} UNREAD NOTIFICATIONS</p>
@@ -98,36 +107,60 @@ const NotificationCenter = () => {
             <div 
               ref={scrollRef}
               onScroll={handleScroll}
-              className="max-h-[450px] overflow-y-auto custom-scrollbar"
+              className="flex-1 sm:max-h-[450px] overflow-y-auto custom-scrollbar"
             >
-              {notifications.length > 0 ? (
+              {unreadNotifications.length > 0 ? (
                 <div className="divide-y divide-brand-border">
-                  {notifications.map((n) => (
+                  {unreadNotifications.map((n) => (
                     <div 
                       key={n.id} 
                       onClick={() => handleNotificationClick(n)}
-                      className={`p-5 hover:bg-brand-bg/50 transition-all group relative cursor-pointer ${n.is_read !== 'true' && n.is_read !== true ? 'bg-blue-600/[0.03]' : ''}`}
+                      className="p-5 hover:bg-brand-bg/50 transition-all group relative cursor-pointer bg-blue-600/[0.03]"
                     >
-                      <div className="flex gap-4">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center border shrink-0 ${n.is_read !== 'true' && n.is_read !== true ? 'bg-blue-600/10 border-blue-500/20' : 'bg-brand-bg/50 border-brand-border'}`}>
+                      {/* Unread indicator dot */}
+                      <span className="absolute left-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-blue-500" />
+
+                      <div className="flex gap-4 pl-2">
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center border shrink-0 bg-blue-600/10 border-blue-500/20">
                           {getIcon(n.type)}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-2 mb-1">
-                            <span className={`text-xs font-bold truncate ${n.is_read !== 'true' && n.is_read !== true ? 'text-text-main' : 'text-text-muted'}`}>{n.title}</span>
+                            <span className="text-xs font-bold truncate text-text-main">{n.title}</span>
                             <span className="text-[9px] font-bold text-text-muted uppercase whitespace-nowrap">
                               {formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}
                             </span>
                           </div>
-                          <p className={`text-xs leading-relaxed line-clamp-2 ${n.is_read !== 'true' && n.is_read !== true ? 'text-text-main/80' : 'text-text-muted/70'}`}>{n.message}</p>
+                          <p className="text-xs leading-relaxed line-clamp-2 text-text-main/80">{n.message}</p>
                         </div>
                       </div>
                       
+                      {/* Action buttons on hover */}
                       <div className="absolute right-4 bottom-4 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button 
-                          onClick={(e) => {
+                          onClick={async (e) => {
                             e.stopPropagation();
-                            deleteNotification({ id: n.id, sk: n.sk });
+                            try {
+                              await markAsRead({ id: n.id }).unwrap();
+                            } catch (err) {
+                              console.error('Mark as read failed:', err);
+                              toast.error('Failed to mark as read');
+                            }
+                          }}
+                          className="p-1.5 bg-brand-bg border border-brand-border rounded-md text-text-muted hover:text-blue-400 transition-colors"
+                          title="Mark as read"
+                        >
+                          <Check size={12} />
+                        </button>
+                        <button 
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            try {
+                              await deleteNotification({ id: n.id }).unwrap();
+                            } catch (err) {
+                              console.error('Delete failed:', err);
+                              toast.error('Failed to delete notification');
+                            }
                           }}
                           className="p-1.5 bg-brand-bg border border-brand-border rounded-md text-text-muted hover:text-red-400 transition-colors"
                           title="Delete"
@@ -148,14 +181,15 @@ const NotificationCenter = () => {
                   <div className="w-16 h-16 rounded-2xl bg-brand-bg/50 border border-brand-border flex items-center justify-center mx-auto mb-4">
                     <Bell className="w-8 h-8 text-text-muted" />
                   </div>
-                  <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest">No notifications yet</p>
+                  <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest">All caught up!</p>
+                  <p className="text-[10px] text-text-muted mt-1">No unread notifications</p>
                 </div>
               )}
             </div>
 
-            <div className="p-4 bg-brand-bg/50 border-t border-brand-border text-center">
+            <div className="p-4 pb-8 sm:pb-4 bg-brand-bg/50 border-t border-brand-border text-center shrink-0">
               <button 
-                onClick={() => navigate('/dashboard/notifications')}
+                onClick={() => { navigate('/dashboard/notifications'); setIsOpen(false); }}
                 className="text-[10px] font-bold text-text-muted hover:text-text-main uppercase tracking-widest transition-colors flex items-center justify-center gap-2 mx-auto"
               >
                 View all history <ChevronDown size={12} />

@@ -25,9 +25,9 @@ export default function UpgradeModal({ isOpen, onClose, currentPlan = 'free', li
   const limitValue = limitType === 'workspaces' ? limit.workspaces : limit.members
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-brand-surface border border-brand-border rounded-3xl p-10 max-w-lg w-full shadow-2xl animate-in fade-in zoom-in duration-300 text-center">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center md:p-4">
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300 hidden md:block" onClick={onClose} />
+      <div className="relative bg-brand-surface md:border border-brand-border rounded-none md:rounded-3xl p-6 md:p-10 max-w-lg w-full h-full md:h-auto overflow-y-auto shadow-2xl animate-in slide-in-from-bottom-full md:slide-in-from-bottom-0 md:zoom-in duration-300 text-center flex flex-col justify-center">
         <button onClick={onClose} className="absolute top-6 right-6 text-text-muted hover:text-text-main transition-colors">
           <X size={18} />
         </button>
