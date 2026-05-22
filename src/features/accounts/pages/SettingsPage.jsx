@@ -8,7 +8,6 @@ import {
   useGetMembersQuery, 
   useInviteMemberMutation, 
   useRemoveMemberMutation,
-  useDisableMfaMutation,
   useGetSessionsQuery,
   useRevokeSessionMutation,
   useGetCalendarStatusQuery
@@ -53,7 +52,6 @@ export default function SettingsPage() {
   const [updateOrganisation, { isLoading: isUpdatingOrg }] = useUpdateOrganisationMutation()
   const [inviteMember, { isLoading: isInviting }] = useInviteMemberMutation()
   const [removeMember] = useRemoveMemberMutation()
-  const [disableMfa] = useDisableMfaMutation()
   
   const { data: sessions } = useGetSessionsQuery()
   const { data: calendarStatus } = useGetCalendarStatusQuery()
@@ -122,37 +120,6 @@ export default function SettingsPage() {
       } else {
         toast.error(err?.data?.message || 'Removal failed')
       }
-    }
-  }
-
-  const handleDisableMfa = async () => {
-    try {
-      await disableMfa().unwrap()
-      toast.success('MFA disabled')
-      await dispatch(checkSession())
-      setIsMfaDisableOpen(false)
-    } catch (err) {
-      console.error('Disable MFA Error:', err)
-      let errMsg = 'Failed to disable MFA';
-      if (err?.data) {
-        if (typeof err.data === 'string') {
-          errMsg = err.data;
-        } else {
-          const fieldErrorKey = Object.keys(err.data).find(k => Array.isArray(err.data[k]) && err.data[k].length > 0);
-          if (fieldErrorKey) {
-            errMsg = `${fieldErrorKey}: ${err.data[fieldErrorKey][0]}`;
-          } else if (err.data.non_field_errors) {
-            errMsg = err.data.non_field_errors[0];
-          } else if (err.data.detail) {
-            errMsg = err.data.detail;
-          } else if (err.data.message && err.data.message !== 'A validation error occurred.') {
-            errMsg = err.data.message;
-          } else {
-            errMsg = JSON.stringify(err.data);
-          }
-        }
-      }
-      toast.error(errMsg)
     }
   }
 
