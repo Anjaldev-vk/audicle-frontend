@@ -131,8 +131,10 @@ export default function SettingsPage() {
       toast.success('MFA disabled')
       await dispatch(checkSession())
       setIsMfaDisableOpen(false)
-    } catch {
-      toast.error('Failed to disable MFA')
+    } catch (err) {
+      console.error('Disable MFA Error:', err)
+      const errMsg = err?.data?.message || err?.data?.detail || 'Failed to disable MFA'
+      toast.error(errMsg)
     }
   }
 
