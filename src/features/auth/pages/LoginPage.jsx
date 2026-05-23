@@ -48,8 +48,9 @@ export default function LoginPage() {
         }
       }
     },
-    onError: () => {
-      console.error('Google login failed')
+    onError: (errorResponse) => {
+      console.error('Google login failed:', errorResponse)
+      alert(`Google Login Failed: ${errorResponse?.error || JSON.stringify(errorResponse) || 'Unknown error'}. Check F12 Console for more details.`)
     },
   })
 

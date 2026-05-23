@@ -231,7 +231,7 @@ const AnalyticsPage = () => {
   // Map backend keys to frontend expectations
   const metrics = {
     meetings: stats.meetings_completed ?? stats.total_intelligence_sessions ?? 0,
-    completion: stats.action_items_completed ?? stats.action_item_completion ?? 0,
+    completion: stats.action_completion_rate ?? stats.action_item_completion ?? 0,
     duration: stats.avg_duration_minutes ?? stats.average_engagement_depth ?? 0,
     queries: stats.rag_queries ?? stats.ai_neural_queries ?? 0,
     storage: stats.storage_used_gb ?? stats.usage?.storage_used ?? 0
@@ -316,7 +316,7 @@ const AnalyticsPage = () => {
               />
               <StatCard
                 title="Action Completion"
-                value={metrics.completion}
+                value={`${Math.round(metrics.completion)}%`}
                 trend={5.4}
                 icon={CheckCircle}
                 color="text-emerald-500"
