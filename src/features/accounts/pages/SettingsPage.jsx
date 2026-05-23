@@ -264,7 +264,7 @@ export default function SettingsPage() {
                 <div className="mb-8 pb-8 border-b border-brand-border">
                   <h2 className="text-xl font-bold text-text-main mb-6">Profile</h2>
                   <div className="flex items-center gap-6">
-                    <div className="w-20 h-20 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 text-3xl font-bold border border-blue-200 dark:border-blue-800/50 shrink-0">
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/30 flex items-center justify-center text-white text-3xl font-black shrink-0">
                       {user?.first_name?.substring(0, 1) || 'U'}
                     </div>
                     <div>
