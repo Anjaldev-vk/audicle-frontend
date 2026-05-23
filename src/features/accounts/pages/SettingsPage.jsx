@@ -381,7 +381,7 @@ export default function SettingsPage() {
                   )}
                 </div>
 
-                <div className="bg-brand-surface border border-brand-border rounded-xl overflow-hidden shadow-sm">
+                <div className="w-full">
                   <MemberList 
                     members={members} 
                     currentUserId={user?.id}
