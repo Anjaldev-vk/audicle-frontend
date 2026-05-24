@@ -64,6 +64,25 @@ const workspaceSlice = createSlice({
 
     setWorkspaces: (state, action) => {
       state.workspaces = action.payload
+
+      // Sync activeWorkspace with the latest fetched data to capture plan changes
+      if (state.activeWorkspace) {
+        const found = action.payload.find(w => 
+          (w.id && w.id === state.activeWorkspace.id) || 
+          (w.type === 'personal' && state.activeWorkspace.type === 'personal')
+        )
+        if (found) {
+          const updatedWs = {
+            id: found.id ?? null,
+            name: found.name,
+            type: found.type,
+            role: found.role ?? null,
+            plan: found.plan ?? 'free',
+          }
+          state.activeWorkspace = updatedWs
+          localStorage.setItem('activeWorkspace', JSON.stringify(updatedWs))
+        }
+      }
     },
 
     clearWorkspace: (state) => {
