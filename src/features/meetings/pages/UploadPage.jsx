@@ -109,7 +109,10 @@ const UploadPage = () => {
             toast.success('Bot assistant dispatched!', { id: toastId });
           } catch (err) {
             console.error(err);
-            toast.error('Meeting scheduled, but immediate join failed.', { id: toastId });
+            let errorMessage = 'Meeting scheduled, but immediate join failed.';
+            if (err?.data?.message) errorMessage = err.data.message;
+            else if (err?.message) errorMessage = err.message;
+            toast.error(errorMessage, { id: toastId });
           }
         } else {
           toast.success('Meeting scheduled! Bot will join at the set time.', { id: toastId });

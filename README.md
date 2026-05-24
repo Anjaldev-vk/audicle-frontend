@@ -1,16 +1,42 @@
-# React + Vite
+# Audicle Frontend 🎙️✨
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The frontend repository for **Audicle**, an AI-powered meeting assistant that records, transcribes, and generates intelligent summaries and action items for your meetings.
 
-Currently, two official plugins are available:
+## 🚀 Features
+- **Dashboard**: View all your scheduled, processing, and completed meetings at a glance.
+- **Meeting Details**: Read full interactive transcripts synced with the meeting audio.
+- **AI Summaries**: Instantly view AI-generated key points, decisions, and action items.
+- **Calendar Integration**: Connect your Google Calendar to automatically schedule bots to join your meetings.
+- **Real-time Notifications**: Get notified instantly via WebSockets when your meeting transcription is ready.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🛠 Tech Stack
+- **Framework**: React.js (Vite)
+- **Styling**: Tailwind CSS / Vanilla CSS
+- **State Management**: Redux Toolkit
+- **Routing**: React Router
+- **Networking**: Axios, WebSockets
 
-## React Compiler
+## 📦 Getting Started (Local Development)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Prerequisites
+- Node.js (v18+)
+- npm or yarn
 
-## Expanding the ESLint configuration
+### Installation
+1. Clone the repository and install dependencies:
+   ```bash
+   npm install
+   ```
+2. Create a `.env` file in the root directory:
+   ```env
+   VITE_API_URL=http://localhost
+   VITE_API_VERSION=v1
+   VITE_GOOGLE_CLIENT_ID=your_google_client_id
+   ```
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🌐 Deployment
+This project is configured to be deployed effortlessly on Vercel or Netlify. Make sure to update the `VITE_API_URL` to point to your production backend.
