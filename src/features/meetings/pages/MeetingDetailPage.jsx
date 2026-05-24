@@ -305,9 +305,9 @@ const MeetingDetailPage = () => {
               <div className="flex items-center gap-1.5 px-3 py-1 bg-brand-highlight rounded-full border border-brand-border">
                 <Calendar className="w-3.5 h-3.5 text-blue-500" />
                 {meeting.date && !isNaN(new Date(meeting.date).getTime())
-                  ? format(new Date(meeting.date), 'PPP')
+                  ? format(new Date(meeting.date), 'PPP p')
                   : (meeting.created_at && !isNaN(new Date(meeting.created_at).getTime())
-                    ? format(new Date(meeting.created_at), 'PPP')
+                    ? format(new Date(meeting.created_at), 'PPP p')
                     : 'No date set')}
               </div>
               <div className="flex items-center gap-1.5 px-3 py-1 bg-brand-highlight rounded-full border border-brand-border">
