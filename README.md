@@ -2,6 +2,9 @@
 
 The frontend repository for **Audicle**, an AI-powered meeting assistant that records, transcribes, and generates intelligent summaries and action items for your meetings.
 
+## 📚 Documentation
+For a deep dive into how the frontend is structured, state management, and real-time WebSocket implementations, please read the [Frontend Architecture Documentation](docs/ARCHITECTURE.md).
+
 ## 🚀 Features
 - **Dashboard**: View all your scheduled, processing, and completed meetings at a glance.
 - **Meeting Details**: Read full interactive transcripts synced with the meeting audio.
